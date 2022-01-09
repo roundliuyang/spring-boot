@@ -47,6 +47,11 @@ import org.springframework.util.StringUtils;
  * @author Oliver Gierke
  * @since 1.0.0
  */
+
+/**
+ * 简单来说，就是将使用 @AutoConfigurationPackage 注解的类所在的包（package），注册成一个 Spring IoC 容器中的 Bean 。
+ * 酱紫，后续有其它模块需要使用，就可以通过获得该 Bean ，从而获得所在的包。例如说，JPA 模块，需要使用到。
+ */
 public abstract class AutoConfigurationPackages {
 
 	private static final Log logger = LogFactory.getLog(AutoConfigurationPackages.class);
@@ -115,6 +120,10 @@ public abstract class AutoConfigurationPackages {
 	/**
 	 * {@link ImportBeanDefinitionRegistrar} to store the base package from the importing
 	 * configuration.
+	 */
+
+	/**
+	 * 是 AutoConfigurationPackages 的内部类，实现 ImportBeanDefinitionRegistrar、DeterminableImports 接口，注册器，用于处理 @AutoConfigurationPackage 注解。
 	 */
 	static class Registrar implements ImportBeanDefinitionRegistrar, DeterminableImports {
 

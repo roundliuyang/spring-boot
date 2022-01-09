@@ -19,6 +19,10 @@ package org.springframework.boot.tests.hibernate52;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+/**
+ * @SpringBootApplication 注解，它在 spring-boot-autoconfigure 模块中。所以，我们使用 Spring Boot 项目时，
+ * 如果不想使用自动配置功能，就不用引入它。当然，我们貌似不太会存在这样的需求，是吧~
+ */
 @SpringBootApplication
 public class Hibernate52Application {
 
