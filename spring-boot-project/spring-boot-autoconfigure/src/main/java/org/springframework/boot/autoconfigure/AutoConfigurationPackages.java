@@ -59,6 +59,7 @@ public abstract class AutoConfigurationPackages {
 	private static final String BEAN = AutoConfigurationPackages.class.getName();
 
 	/**
+	 * 判断是否存在该 BEAN 在传入的容器中
 	 * Determine if the auto-configuration base packages for the given bean factory are
 	 * available.
 	 * @param beanFactory the source bean factory
@@ -69,6 +70,7 @@ public abstract class AutoConfigurationPackages {
 	}
 
 	/**
+	 *获得 BEAN
 	 * Return the auto-configuration base packages for the given bean factory.
 	 * @param beanFactory the source bean factory
 	 * @return a list of auto-configuration packages
@@ -95,13 +97,17 @@ public abstract class AutoConfigurationPackages {
 	 * @param packageNames the package names to set
 	 */
 	public static void register(BeanDefinitionRegistry registry, String... packageNames) {
+		// 如果已经存在该Bean ,则修改其包（Package 属性）
+		// 如果已经存在该 BEAN ，则修改其包（package）属性。而合并 package 的逻辑，通过 #addBasePackages(ConstructorArgumentValues constructorArguments, String[] packageNames) 方法，进行实现
 		if (registry.containsBeanDefinition(BEAN)) {
 			BeanDefinition beanDefinition = registry.getBeanDefinition(BEAN);
 			ConstructorArgumentValues constructorArguments = beanDefinition.getConstructorArgumentValues();
 			constructorArguments.addIndexedArgumentValue(0, addBasePackages(constructorArguments, packageNames));
 		}
+		// 如果不存在该Bean,则创建一个Bean,并进行注册
 		else {
 			GenericBeanDefinition beanDefinition = new GenericBeanDefinition();
+			// 注册的BEAN类型，为BasePackages 类型。他是AutoConfigurations 的内部类
 			beanDefinition.setBeanClass(BasePackages.class);
 			beanDefinition.getConstructorArgumentValues().addIndexedArgumentValue(0, packageNames);
 			beanDefinition.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
@@ -110,7 +116,9 @@ public abstract class AutoConfigurationPackages {
 	}
 
 	private static String[] addBasePackages(ConstructorArgumentValues constructorArguments, String[] packageNames) {
+		// 获得已存在的
 		String[] existing = (String[]) constructorArguments.getIndexedArgumentValue(0, String[].class).getValue();
+		// 进行合并
 		Set<String> merged = new LinkedHashSet<>();
 		merged.addAll(Arrays.asList(existing));
 		merged.addAll(Arrays.asList(packageNames));
@@ -129,7 +137,7 @@ public abstract class AutoConfigurationPackages {
 
 		@Override
 		public void registerBeanDefinitions(AnnotationMetadata metadata, BeanDefinitionRegistry registry) {
-			register(registry, new PackageImport(metadata).getPackageName());
+			register(registry, new PackageImport(metadata).getPackageName());    // 注册一个用于存储报名（package）的 Bean 到 Spring IoC 容器中。
 		}
 
 		@Override

@@ -197,6 +197,7 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector, 
 		return EnableAutoConfiguration.class;
 	}
 
+	// 校验排除的配置类是否合法
 	private void checkExcludedClasses(List<String> configurations, Set<String> exclusions) {
 		List<String> invalidExcludes = new ArrayList<>(exclusions.size());
 		for (String exclusion : exclusions) {
@@ -252,37 +253,49 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector, 
 		String[] excludes = getEnvironment().getProperty(PROPERTY_NAME_AUTOCONFIGURE_EXCLUDE, String[].class);
 		return (excludes != null) ? Arrays.asList(excludes) : Collections.emptyList();
 	}
-
+	// 我们可以看到 AutoConfigurationImportFilter 的使用，过滤可以忽略的配置类
 	private List<String> filter(List<String> configurations, AutoConfigurationMetadata autoConfigurationMetadata) {
+		// 记录开始时间，用于下面统计消耗的时间
 		long startTime = System.nanoTime();
+		// 配置类的数组
 		String[] candidates = StringUtils.toStringArray(configurations);
+		// 每个配置类是否需要忽略的数组，通过下标互相索引
 		boolean[] skip = new boolean[candidates.length];
+		// 是否有需要需要忽略匹配的
 		boolean skipped = false;
+		// 遍历 AutoConfigurationImportFilter 数组，逐个匹配
 		for (AutoConfigurationImportFilter filter : getAutoConfigurationImportFilters()) {
+			// 设置AutoConfigurationImportFilter 属性们
 			invokeAwareMethods(filter);
+			// 执行批量匹配，并返回匹配结果
 			boolean[] match = filter.match(candidates, autoConfigurationMetadata);
+			// 遍历匹配的结果，判断哪些需要忽略
 			for (int i = 0; i < match.length; i++) {
-				if (!match[i]) {
+				if (!match[i]) {   // 如果有不匹配的
 					skip[i] = true;
-					candidates[i] = null;
-					skipped = true;
+					candidates[i] = null;   // 标记为空，循环的下一次，就无须匹配他了
+					skipped = true;    // 标记存在不匹配的
 				}
 			}
 		}
+		// 如果没有需要忽略的，直接返回 configurations 即可
 		if (!skipped) {
 			return configurations;
 		}
+		// 如果存在需要忽略的，构建新的数组，排除掉忽略的
 		List<String> result = new ArrayList<>(candidates.length);
 		for (int i = 0; i < candidates.length; i++) {
 			if (!skip[i]) {
 				result.add(candidates[i]);
 			}
 		}
+		// 打印消耗的时间，已经排除的数量
 		if (logger.isTraceEnabled()) {
 			int numberFiltered = configurations.size() - result.size();
 			logger.trace("Filtered " + numberFiltered + " auto configuration class in "
 					+ TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startTime) + " ms");
 		}
+		//  返回
 		return new ArrayList<>(result);
 	}
 
@@ -299,12 +312,19 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector, 
 		return Arrays.asList(value);
 	}
 
+	// 出发自动配置类引入完成的事件
 	private void fireAutoConfigurationImportEvents(List<String> configurations, Set<String> exclusions) {
+		// 加载指定类型 AutoConfigurationImportListener 对应的，在 `META-INF/spring.factories` 里的类名的数组。
 		List<AutoConfigurationImportListener> listeners = getAutoConfigurationImportListeners();
 		if (!listeners.isEmpty()) {
+			//  创建 AutoConfigurationImportEvent 事件
 			AutoConfigurationImportEvent event = new AutoConfigurationImportEvent(this, configurations, exclusions);
+			// 遍历AutoConfigurationImportListener 监听器，逐个通知
 			for (AutoConfigurationImportListener listener : listeners) {
+				// 设置AutoConfigurationImportListener 的属性
 				invokeAwareMethods(listener);
+				// 通知
+				// 通知监听器，目前只有一个 ConditionEvaluationReportAutoConfigurationImportListener 监听器，没啥逻辑，有兴趣自己看哈。
 				listener.onAutoConfigurationImportEvent(event);
 			}
 		}
@@ -315,6 +335,7 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector, 
 	}
 
 	private void invokeAwareMethods(Object instance) {
+		// 各种 Aware 属性的注入
 		if (instance instanceof Aware) {
 			if (instance instanceof BeanClassLoaderAware) {
 				((BeanClassLoaderAware) instance).setBeanClassLoader(this.beanClassLoader);
