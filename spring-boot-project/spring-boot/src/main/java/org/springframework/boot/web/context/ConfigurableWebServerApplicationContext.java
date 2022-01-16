@@ -26,6 +26,10 @@ import org.springframework.context.ConfigurableApplicationContext;
  * @author Phillip Webb
  * @since 2.0.0
  */
+
+// ConfigurableApplicationContext 是Spring FrameWork 提供的类，就不细看了
+// WebServerApplicationContext 继承 ApplicationContext 接口
+
 public interface ConfigurableWebServerApplicationContext
 		extends ConfigurableApplicationContext, WebServerApplicationContext {
 

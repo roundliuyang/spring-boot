@@ -33,6 +33,7 @@ public interface WebServerApplicationContext extends ApplicationContext {
 	 * Returns the {@link WebServer} that was created by the context or {@code null} if
 	 * the server has not yet been created.
 	 * @return the web server
+	 * 可以获得 WebServer 的方法，获得它，可以各种 WebServer 的管理
 	 */
 	WebServer getWebServer();
 

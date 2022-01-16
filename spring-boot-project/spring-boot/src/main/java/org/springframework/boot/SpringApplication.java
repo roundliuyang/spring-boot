@@ -620,7 +620,9 @@ public class SpringApplication {
 		return bannerPrinter.print(environment, this.mainApplicationClass, System.out);
 	}
 
-	/**根据 webApplicationType 类型，获得对应的 ApplicationContext 对象。
+	/**
+	 * 根据 webApplicationType 类型，获得对应的 ApplicationContext 对象。
+	 *
 	 * Strategy method used to create the {@link ApplicationContext}. By default this
 	 * method will respect any explicitly set application context or application context
 	 * class before falling back to a suitable default.
@@ -631,6 +633,7 @@ public class SpringApplication {
 		Class<?> contextClass = this.applicationContextClass;
 		if (contextClass == null) {
 			try {
+				// 根据 webApplicationType 类型，获得 ApplicationContext 类型
 				switch (this.webApplicationType) {
 				case SERVLET:
 					contextClass = Class.forName(DEFAULT_SERVLET_WEB_CONTEXT_CLASS);
@@ -647,6 +650,7 @@ public class SpringApplication {
 						"Unable create a default ApplicationContext, please specify an ApplicationContextClass", ex);
 			}
 		}
+		// 创建 ApplicationContext 对象
 		return (ConfigurableApplicationContext) BeanUtils.instantiateClass(contextClass);
 	}
 

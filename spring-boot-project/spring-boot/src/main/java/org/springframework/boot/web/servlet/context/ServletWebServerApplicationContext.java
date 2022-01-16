@@ -90,6 +90,14 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
  * @see XmlServletWebServerApplicationContext
  * @see ServletWebServerFactory
  */
+
+/**
+ * org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext ，
+ * 实现 ConfigurableWebServerApplicationContext 接口，继承 GenericWebApplicationContext 类，Spring Boot 使用 Servlet Web 服务器的 ApplicationContext 实现类。
+ *
+ * 实现 ConfigurableWebServerApplicationContext 接口后，可以获得管理WebServer 的能力
+ */
+
 public class ServletWebServerApplicationContext extends GenericWebApplicationContext
 		implements ConfigurableWebServerApplicationContext {
 
@@ -102,11 +110,18 @@ public class ServletWebServerApplicationContext extends GenericWebApplicationCon
 	 * {@link ServletRegistrationBean} or a different bean name.
 	 */
 	public static final String DISPATCHER_SERVLET_NAME = "dispatcherServlet";
-
+	/**
+	 * Spring WebServer 对象
+	 */
 	private volatile WebServer webServer;
-
+	/**
+	 * Servlet servletConfig 对象
+	 */
 	private ServletConfig servletConfig;
-
+	/**
+	 * 通过 {@link #setServerNamespace(String)} 注入。
+	 *
+	 */
 	private String serverNamespace;
 
 	/**
@@ -127,14 +142,27 @@ public class ServletWebServerApplicationContext extends GenericWebApplicationCon
 	/**
 	 * Register ServletContextAwareProcessor.
 	 * @see ServletContextAwareProcessor
+	 *
+	 * 重写 postProcessBeanFactory 方法
 	 */
 	@Override
 	protected void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) {
+		// 注册 WebApplicationContextServletContextAwareProcessor,
+		// WebApplicationContextServletContextAwareProcessor 的作用主要是处理实现ServletContextAware 接口的Bean,在这个处理类，在这个处理类，
+		// 初始化这个 Bean 中的 ServletContext 属性，这样在实现 ServletContextAware 接口的 Bean 中就可以拿到 ServletContext 对象了，
+		// Spring 中 Aware 接口就是这样实现的。这样，就可以从 webApplicationContext 中，获得 ServletContext 和 ServletConfig 属性。
 		beanFactory.addBeanPostProcessor(new WebApplicationContextServletContextAwareProcessor(this));
+		// 忽略 ServletContextAware 接口。
+		// 忽略 ServletContextAware 接口，因为实现 ServletContextAware 接口的 Bean 在 <1.1> 中的 WebApplicationContextServletContextAwareProcessor 中已经处理了。
 		beanFactory.ignoreDependencyInterface(ServletContextAware.class);
+		// 注册 ExistingWebApplicationScopes
 		registerWebApplicationScopes();
 	}
 
+	/**
+	 * 重写refresh方法，初始化Spring容器
+	 * 主要是如果发生异常，则调用 #stopAndReleaseWebServer() 方法，停止 WebServer
+	 */
 	@Override
 	public final void refresh() throws BeansException, IllegalStateException {
 		try {
@@ -298,11 +326,17 @@ public class ServletWebServerApplicationContext extends GenericWebApplicationCon
 		return webServer;
 	}
 
+	/**
+	 * 停止 WebServer
+	 */
 	private void stopAndReleaseWebServer() {
+		// 获得 WebServer 对象，避免被多线程修改了
 		WebServer webServer = this.webServer;
 		if (webServer != null) {
 			try {
+				// 停止 WebServer 对象
 				webServer.stop();
+				// 置空 webServer
 				this.webServer = null;
 			}
 			catch (Exception ex) {
