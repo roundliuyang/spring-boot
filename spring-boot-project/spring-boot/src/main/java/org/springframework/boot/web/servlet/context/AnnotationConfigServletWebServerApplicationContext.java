@@ -53,15 +53,23 @@ import org.springframework.util.ClassUtils;
  * @see ServletWebServerApplicationContext
  * @see AnnotationConfigServletWebApplicationContext
  */
+//  继承 ServletWebServerApplicationContext 类，实现 AnnotationConfigRegistry 接口，进一步提供了两个功能：
+// 不过一般情况下，我们用不到这两个功能。简单看了下，更多的是单元测试，需要使用到这两个功能。
+// 从指定的 basePackages 包中，扫描 BeanDefinition 们。
+//从指定的 annotatedClasses 注解的配置类（Configuration）中，读取 BeanDefinition 们。
 public class AnnotationConfigServletWebServerApplicationContext extends ServletWebServerApplicationContext
 		implements AnnotationConfigRegistry {
 
 	private final AnnotatedBeanDefinitionReader reader;
 
 	private final ClassPathBeanDefinitionScanner scanner;
-
+	/**
+	 *  需要被 {@link #reader} 读取的注册类们
+	 */
 	private final Set<Class<?>> annotatedClasses = new LinkedHashSet<>();
-
+	/**
+	 * 需要被 {@link #scanner} 扫描的包
+	 */
 	private String[] basePackages;
 
 	/**
@@ -95,7 +103,9 @@ public class AnnotationConfigServletWebServerApplicationContext extends ServletW
 	 */
 	public AnnotationConfigServletWebServerApplicationContext(Class<?>... annotatedClasses) {
 		this();
+		//  注册指定的注解的类们
 		register(annotatedClasses);
+		// 初始化 Spring 容器
 		refresh();
 	}
 
@@ -107,7 +117,9 @@ public class AnnotationConfigServletWebServerApplicationContext extends ServletW
 	 */
 	public AnnotationConfigServletWebServerApplicationContext(String... basePackages) {
 		this();
+		// 扫描指定包
 		scan(basePackages);
+		// 初始化 Spring 容器
 		refresh();
 	}
 
@@ -196,12 +208,18 @@ public class AnnotationConfigServletWebServerApplicationContext extends ServletW
 		super.prepareRefresh();
 	}
 
+	/**
+	 * 覆写 #postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) 方法，执行 BeanDefinition 的读取。代码如下：
+	 */
 	@Override
 	protected void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) {
+		// 调用父类
 		super.postProcessBeanFactory(beanFactory);
+		// 扫描指定包
 		if (this.basePackages != null && this.basePackages.length > 0) {
 			this.scanner.scan(this.basePackages);
 		}
+		//  注册指定的注解的类们定的
 		if (!this.annotatedClasses.isEmpty()) {
 			this.reader.register(ClassUtils.toClassArray(this.annotatedClasses));
 		}
