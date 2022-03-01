@@ -73,6 +73,7 @@ public @interface SpringBootApplication {
 	String[] excludeName() default {};
 
 	/**
+	 * 指定扫描的基础包，激活注解组件的初始化
 	 * Base packages to scan for annotated components. Use {@link #scanBasePackageClasses}
 	 * for a type-safe alternative to String-based package names.
 	 * <p>
@@ -88,6 +89,7 @@ public @interface SpringBootApplication {
 	String[] scanBasePackages() default {};
 
 	/**
+	 * 指定扫描的类，用于初始化-------没看懂
 	 * Type-safe alternative to {@link #scanBasePackages} for specifying the packages to
 	 * scan for annotated components. The package of each class specified will be scanned.
 	 * <p>

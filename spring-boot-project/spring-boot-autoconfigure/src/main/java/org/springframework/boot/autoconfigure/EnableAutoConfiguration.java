@@ -86,6 +86,7 @@ import org.springframework.core.io.support.SpringFactoriesLoader;
 public @interface EnableAutoConfiguration {
 
 	/**
+	 * 用来覆盖配置开启/关闭自动配置的功能
 	 * Environment property that can be used to override when auto-configuration is
 	 * enabled.
 	 */

@@ -274,6 +274,7 @@ public class SpringApplication {
 		this.primarySources = new LinkedHashSet<>(Arrays.asList(primarySources));
 		this.webApplicationType = WebApplicationType.deduceFromClasspath();
 		// 初始化 initiallizers 属性
+		// 在 SpringApplication 构造方法中，会调用 #getSpringFactoriesInstances(Class<T> type) 方法，获得 ApplicationContextInitializer 集合。代码如下：
 		setInitializers((Collection) getSpringFactoriesInstances(ApplicationContextInitializer.class));
 		// 初始化 listeners 属性
 		setListeners((Collection) getSpringFactoriesInstances(ApplicationListener.class));
@@ -395,6 +396,10 @@ public class SpringApplication {
 		}
 	}
 
+	/**
+	 * 在 #prepareContext(...) 方法中，即在 Spring IoC 容器初始化之前，会调用 #applyInitializers() 方法，逐个调用 ApplicationContextInitializer 的初始化方法。代码如下：
+	 * @param printedBanner
+	 */
 	private void prepareContext(ConfigurableApplicationContext context, ConfigurableEnvironment environment,
 			SpringApplicationRunListeners listeners, ApplicationArguments applicationArguments, Banner printedBanner) {
 		// 设置 context 的environment 属性
@@ -402,6 +407,7 @@ public class SpringApplication {
 		// 设置 context 的一些属性
 		postProcessApplicationContext(context);
 		// 初始化 ApplicationContextInitializer
+		// 调用 #applyInitializers() 方法，逐个调用 ApplicationContextInitializer 的初始化方法。代码如下：
 		applyInitializers(context);
 		// 通知 SpringApplicationRunListener 的数组，Spring 容器准备完成
 		listeners.contextPrepared(context);
@@ -472,7 +478,9 @@ public class SpringApplication {
 		// 关于 SpringFactoriesLoader 的该方法，我们就不去细看了。😈 很多时候，我们看源码的时候，不需要陷入到每个方法的细节中。非关键的方法，猜测到具体的用途后，跳过也是没问题的。
 
 		Set<String> names = new LinkedHashSet<>(SpringFactoriesLoader.loadFactoryNames(type, classLoader));
+		// 创建对象们
 		List<T> instances = createSpringFactoriesInstances(type, parameterTypes, classLoader, args, names);
+		// 排序对象们
 		AnnotationAwareOrderComparator.sort(instances);
 		return instances;
 	}

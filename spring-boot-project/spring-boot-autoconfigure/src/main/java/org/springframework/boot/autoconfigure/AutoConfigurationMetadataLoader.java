@@ -44,9 +44,11 @@ final class AutoConfigurationMetadataLoader {
 
 	static AutoConfigurationMetadata loadMetadata(ClassLoader classLoader, String path) {
 		try {
+			// 获取数据存储于 Enumeration 中
 			Enumeration<URL> urls = (classLoader != null) ? classLoader.getResources(path)
 					: ClassLoader.getSystemResources(path);
 			Properties properties = new Properties();
+			// 遍历 Enumeration 中的URL,加载其中的属性，存储到Properties中
 			while (urls.hasMoreElements()) {
 				properties.putAll(PropertiesLoaderUtils.loadProperties(new UrlResource(urls.nextElement())));
 			}
@@ -58,6 +60,7 @@ final class AutoConfigurationMetadataLoader {
 	}
 
 	static AutoConfigurationMetadata loadMetadata(Properties properties) {
+		// 创建 AutoConfigurationMetadata 的实现类 PropertiesAutoConfigurationMetadata
 		return new PropertiesAutoConfigurationMetadata(properties);
 	}
 

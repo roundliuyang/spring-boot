@@ -33,6 +33,10 @@ import org.springframework.core.env.PropertySource;
 import org.springframework.util.StringUtils;
 
 /**
+ * org.springframework.boot.web.context.ServerPortInfoApplicationContextInitializer ，
+ * 实现 ApplicationContextInitializer、ApplicationListener 接口，监听 EmbeddedServletContainerInitializedEvent 类型的事件，
+ * 然后将内嵌的 Web 服务器使用的端口给设置到 ApplicationContext 中。
+ *
  * {@link ApplicationContextInitializer} that sets {@link Environment} properties for the
  * ports that {@link WebServer} servers are actually listening on. The property
  * {@literal "local.server.port"} can be injected directly into tests using
@@ -53,25 +57,33 @@ public class ServerPortInfoApplicationContextInitializer implements
 		ApplicationContextInitializer<ConfigurableApplicationContext>, ApplicationListener<WebServerInitializedEvent> {
 
 	@Override
+	// 将自身作为一个 ApplicationListener 监听器，添加到 Spring 容器中。
 	public void initialize(ConfigurableApplicationContext applicationContext) {
 		applicationContext.addApplicationListener(this);
 	}
 
+	/**
+	 * 实现 #onApplicationEvent(WebServerInitializedEvent event) 方法，当监听到 WebServerInitializedEvent 事件，进行触发。代码如下：
+	 */
 	@Override
 	public void onApplicationEvent(WebServerInitializedEvent event) {
+		// 获得属性名
 		String propertyName = "local." + getName(event.getApplicationContext()) + ".port";
+		//  设置端口到 environment 的 propertyName
 		setPortProperty(event.getApplicationContext(), propertyName, event.getWebServer().getPort());
 	}
-
+	// 获得 WebServer 的名字。
 	private String getName(WebServerApplicationContext context) {
 		String name = context.getServerNamespace();
 		return StringUtils.hasText(name) ? name : "server";
 	}
 
 	private void setPortProperty(ApplicationContext context, String propertyName, int port) {
+		// 设置端口到 environment 的 propertyName 中
 		if (context instanceof ConfigurableApplicationContext) {
 			setPortProperty(((ConfigurableApplicationContext) context).getEnvironment(), propertyName, port);
 		}
+		// 如果有父容器，则继续设置
 		if (context.getParent() != null) {
 			setPortProperty(context.getParent(), propertyName, port);
 		}

@@ -216,26 +216,33 @@ public class LoggingApplicationListener implements GenericApplicationListener {
 
 	@Override
 	public void onApplicationEvent(ApplicationEvent event) {
+		// 在Spring Boot 应用启动的时候
 		if (event instanceof ApplicationStartingEvent) {
 			onApplicationStartingEvent((ApplicationStartingEvent) event);
 		}
+		//  在 Spring Boot 的 Environment 环境准备完成的时候
 		else if (event instanceof ApplicationEnvironmentPreparedEvent) {
 			onApplicationEnvironmentPreparedEvent((ApplicationEnvironmentPreparedEvent) event);
 		}
+		// 在 Spring Boot 容器的准备工作已经完成（并未启动）的时候
 		else if (event instanceof ApplicationPreparedEvent) {
 			onApplicationPreparedEvent((ApplicationPreparedEvent) event);
 		}
+		// 在 Spring Boot 容器关闭的时候
 		else if (event instanceof ContextClosedEvent
 				&& ((ContextClosedEvent) event).getApplicationContext().getParent() == null) {
 			onContextClosedEvent();
 		}
+		// 在 Spring Boot 容器启动失败的时候
 		else if (event instanceof ApplicationFailedEvent) {
 			onApplicationFailedEvent();
 		}
 	}
 
 	private void onApplicationStartingEvent(ApplicationStartingEvent event) {
+		//  创建 LoggingSystem 对象,通过 LoggingSystem 的抽象，对应不同日志框架对应的 LoggingSystem 实现，达到方便透明的接入不同的日志框架~
 		this.loggingSystem = LoggingSystem.get(event.getSpringApplication().getClassLoader());
+		// LoggingSystem 的初始化的前置处理
 		this.loggingSystem.beforeInitialize();
 	}
 
@@ -243,6 +250,7 @@ public class LoggingApplicationListener implements GenericApplicationListener {
 		if (this.loggingSystem == null) {
 			this.loggingSystem = LoggingSystem.get(event.getSpringApplication().getClassLoader());
 		}
+		// 初始化
 		initialize(event.getEnvironment(), event.getSpringApplication().getClassLoader());
 	}
 
@@ -278,14 +286,19 @@ public class LoggingApplicationListener implements GenericApplicationListener {
 	 * @param classLoader the classloader
 	 */
 	protected void initialize(ConfigurableEnvironment environment, ClassLoader classLoader) {
+		//  初始化 LoggingSystemProperties 配置
 		new LoggingSystemProperties(environment).apply();
+		// 初始化 LogFile
 		this.logFile = LogFile.get(environment);
 		if (this.logFile != null) {
 			this.logFile.applyToSystemProperties();
 		}
 		this.loggerGroups = new LoggerGroups(DEFAULT_GROUP_LOGGERS);
+		// 初始化早期的 Spring Boot Logging 级别
 		initializeEarlyLoggingLevel(environment);
+		// 初始化 LoggingSystem 日志系统
 		initializeSystem(environment, this.loggingSystem, this.logFile);
+		//  初始化最终的 Spring Boot Logging 级别
 		initializeFinalLoggingLevels(environment, this.loggingSystem);
 		registerShutdownHookIfNecessary(environment, this.loggingSystem);
 	}

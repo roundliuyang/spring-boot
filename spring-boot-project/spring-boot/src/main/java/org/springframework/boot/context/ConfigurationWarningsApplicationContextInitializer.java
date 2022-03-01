@@ -56,6 +56,7 @@ public class ConfigurationWarningsApplicationContextInitializer
 
 	@Override
 	public void initialize(ConfigurableApplicationContext context) {
+		// 注册 ConfigurationWarningsPostProcessor 到 Spring 容器中
 		context.addBeanFactoryPostProcessor(new ConfigurationWarningsPostProcessor(getChecks()));
 	}
 
@@ -89,6 +90,10 @@ public class ConfigurationWarningsApplicationContextInitializer
 		}
 
 		@Override
+		/**
+		 * 核心就是  #postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) 方法。在其内部，遍历 Check 数组，执行校验。若有错，则打印 warn 日志。在上文中，
+		 * 我们看到目前 checks 只有一个 ComponentScanPackageCheck 元素。关于它，我们在 「7.3 ComponentScanPackageCheck」 详细解析。
+		 */
 		public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
 			for (Check check : this.checks) {
 				String message = check.getWarning(registry);

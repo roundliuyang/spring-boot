@@ -32,6 +32,8 @@ import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 
 /**
+ * org.springframework.boot.context.config.DelegatingApplicationContextInitializer ，实现 ApplicationContextInitializer、Ordered 接口，
+ * 根据环境变量配置的 context.initializer.classes 配置的 ApplicationContextInitializer 类们，交给它们进行初始化。
  * {@link ApplicationContextInitializer} that delegates to other initializers that are
  * specified under a {@literal context.initializer.classes} environment property.
  *
@@ -43,20 +45,23 @@ public class DelegatingApplicationContextInitializer
 		implements ApplicationContextInitializer<ConfigurableApplicationContext>, Ordered {
 
 	// NOTE: Similar to org.springframework.web.context.ContextLoader
-
+	// 环境变量配置的属性
 	private static final String PROPERTY_NAME = "context.initializer.classes";
-
+	// 默认优先级  优先级为 0 ，在 Spring Boot 默认的 ApplicationContextInitializer 实现类中，是排在最前面的。
 	private int order = 0;
 
 	@Override
 	public void initialize(ConfigurableApplicationContext context) {
+		// 获得环境变量配置的 ApplicationContextInitializer 集合们
 		ConfigurableEnvironment environment = context.getEnvironment();
+		// 拼装成数组，按照 ，分隔
 		List<Class<?>> initializerClasses = getInitializerClasses(environment);
 		if (!initializerClasses.isEmpty()) {
+			// 执行 ApplicationContextInitializer 们的初始化逻辑
 			applyInitializerClasses(context, initializerClasses);
 		}
 	}
-
+	// 获得全类名，对应的类
 	private List<Class<?>> getInitializerClasses(ConfigurableEnvironment env) {
 		String classNames = env.getProperty(PROPERTY_NAME);
 		List<Class<?>> classes = new ArrayList<>();
@@ -82,6 +87,7 @@ public class DelegatingApplicationContextInitializer
 	private void applyInitializerClasses(ConfigurableApplicationContext context, List<Class<?>> initializerClasses) {
 		Class<?> contextClass = context.getClass();
 		List<ApplicationContextInitializer<?>> initializers = new ArrayList<>();
+		//  遍历 initializerClasses 数组，创建对应的 ApplicationContextInitializer 对象们
 		for (Class<?> initializerClass : initializerClasses) {
 			initializers.add(instantiateInitializer(contextClass, initializerClass));
 		}
@@ -89,6 +95,7 @@ public class DelegatingApplicationContextInitializer
 	}
 
 	private ApplicationContextInitializer<?> instantiateInitializer(Class<?> contextClass, Class<?> initializerClass) {
+		// 断言校验
 		Class<?> requireContextClass = GenericTypeResolver.resolveTypeArgument(initializerClass,
 				ApplicationContextInitializer.class);
 		Assert.isAssignable(requireContextClass, contextClass,
@@ -96,14 +103,17 @@ public class DelegatingApplicationContextInitializer
 						"Could not add context initializer [%s] as its generic parameter [%s] is not assignable "
 								+ "from the type of application context used by this context loader [%s]: ",
 						initializerClass.getName(), requireContextClass.getName(), contextClass.getName()));
+		// 创建 ApplicationContextInitializer 对象
 		return (ApplicationContextInitializer<?>) BeanUtils.instantiateClass(initializerClass);
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private void applyInitializers(ConfigurableApplicationContext context,
 			List<ApplicationContextInitializer<?>> initializers) {
+		// 排序，无处不在的排序
 		initializers.sort(new AnnotationAwareOrderComparator());
 		for (ApplicationContextInitializer initializer : initializers) {
+			// 执行初始化逻辑
 			initializer.initialize(context);
 		}
 	}
