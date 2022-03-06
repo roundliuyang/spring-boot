@@ -129,9 +129,9 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector, 
 		Set<String> exclusions = getExclusions(annotationMetadata, attributes);
 		// 检查被排除类是否可实例化，是否被自动注册配置所使用的，不符合条件则抛出异常
 		checkExcludedClasses(configurations, exclusions);
-		// 从自动配置类集合中去除被排除的类
+		// 从【自动配置类集合】中去除被排除的类
 		configurations.removeAll(exclusions);
-		// 检查配置类的注解是否符合 spring.factories 文件中 AutoConfigurationImportFilter指定的注解检查条件
+		// 检查配置类的注解是否符合 spring.factories 文件中 AutoConfigurationImportFilter指定的注解检查条件（过滤自动配置组件）、
 		configurations = filter(configurations, autoConfigurationMetadata);
 		// 将筛选完成的配置类和排查的配置类构建为事件类，并传入监听器。监听器的配置在于spring.factories文件中，通过AutoConfigurationImportListener 指定
 		fireAutoConfigurationImportEvents(configurations, exclusions);
@@ -266,6 +266,13 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector, 
 		return (excludes != null) ? Arrays.asList(excludes) : Collections.emptyList();
 	}
 	// 我们可以看到 AutoConfigurationImportFilter 的使用，过滤可以忽略的配置类
+
+	/**
+	 *
+	 * @param configurations  经过初次过滤之后的自动配置组件列表
+	 * @param autoConfigurationMetadata  元数据文件META-INF/spring-autoconfiguration-metadata.properties 中配置的实体类
+	 * @return
+	 */
 	private List<String> filter(List<String> configurations, AutoConfigurationMetadata autoConfigurationMetadata) {
 		// 记录开始时间，用于下面统计消耗的时间
 		long startTime = System.nanoTime();
@@ -276,6 +283,7 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector, 
 		// 是否有需要需要忽略匹配的
 		boolean skipped = false;
 		// 遍历 AutoConfigurationImportFilter 数组，逐个匹配
+		// getAutoConfigurationImportFilters() 得到 META-INF/spring.factories 中配置key 为AutoConfigurationImportFilter 中的 Filters 列表
 		for (AutoConfigurationImportFilter filter : getAutoConfigurationImportFilters()) {
 			// 设置AutoConfigurationImportFilter 属性们
 			invokeAwareMethods(filter);
@@ -330,6 +338,7 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector, 
 		List<AutoConfigurationImportListener> listeners = getAutoConfigurationImportListeners();
 		if (!listeners.isEmpty()) {
 			//  创建 AutoConfigurationImportEvent 事件
+			// 将筛选出来的自动配置类集合和被排除的自动配置类集合封装成 AutoConfigurationImportEvent 事件对象
 			AutoConfigurationImportEvent event = new AutoConfigurationImportEvent(this, configurations, exclusions);
 			// 遍历AutoConfigurationImportListener 监听器，逐个通知
 			for (AutoConfigurationImportListener listener : listeners) {

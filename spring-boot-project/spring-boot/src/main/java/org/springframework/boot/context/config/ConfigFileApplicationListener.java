@@ -319,26 +319,39 @@ public class ConfigFileApplicationListener implements EnvironmentPostProcessor, 
 			this.propertySourceLoaders = SpringFactoriesLoader.loadFactories(PropertySourceLoader.class,
 					getClass().getClassLoader());
 		}
-
+		// 以下代码执行的操作就是处理指定的 profile 与 默认的 profile之间的优先级，以及顺序关系，而其中的load 方法是对 profile的加载操作。
 		void load() {
+			// 过滤符合条件的 properties
 			FilteredPropertySource.apply(this.environment, DEFAULT_PROPERTIES, LOAD_FILTERED_PROPERTY,
 					(defaultProperties) -> {
+						// 创建磨人的 Profile 双队列
 						this.profiles = new LinkedList<>();
+						// 创建默认的已处理 Profile 列表
 						this.processedProfiles = new LinkedList<>();
+						// 默认设置为 未激活
 						this.activatedProfiles = false;
+						// 创建 key 为profile,值为 MutablePropertySources 的默认 Map,注意是有序的 Map
 						this.loaded = new LinkedHashMap<>();
+						// 加载 Profile 信息，默认为 default
 						initializeProfiles();
+						// 遍历 profiles  ,并加载解析
 						while (!this.profiles.isEmpty()) {
 							Profile profile = this.profiles.poll();
+							// 非默认的 profile 则加入
 							if (isDefaultProfile(profile)) {
 								addProfileToEnvironment(profile.getName());
 							}
+							// 解析处理 profile
 							load(profile, this::getPositiveProfileFilter,
 									addToLoaded(MutablePropertySources::addLast, false));
+							// 已经处理过的放入对应的列表
 							this.processedProfiles.add(profile);
 						}
+						// 再次加载 profile 为 null 的配置，将其放置在 loaded  的最前面
 						load(null, this::getNegativeProfileFilter, addToLoaded(MutablePropertySources::addFirst, true));
+						// 添加加载的 PropertySource 到环境中
 						addLoadedPropertySources();
+						// 过滤并添加 defaultProperties 到 processedProfiles 和 环境中
 						applyActiveProfiles(defaultProperties);
 					});
 		}
@@ -349,17 +362,23 @@ public class ConfigFileApplicationListener implements EnvironmentPostProcessor, 
 		 * properties that are already set.
 		 */
 		private void initializeProfiles() {
+			// 首先添加 default profile ,确保首先被执行，并且优先级最低
 			// The default profile for these purposes is represented as null. We add it
 			// first so that it is processed first and has lowest priority.
 			this.profiles.add(null);
+			// 查找环境中 spring.profiles.active 属性配置的 Profile
 			Set<Profile> activatedViaProperty = getProfilesFromProperty(ACTIVE_PROFILES_PROPERTY);
 			Set<Profile> includedViaProperty = getProfilesFromProperty(INCLUDE_PROFILES_PROPERTY);
 			List<Profile> otherActiveProfiles = getOtherActiveProfiles(activatedViaProperty, includedViaProperty);
+			// 其它属性配置添加到 profile 队列中
 			this.profiles.addAll(otherActiveProfiles);
 			// Any pre-existing active profiles set via property sources (e.g.
 			// System properties) take precedence over those added in config files.
+			// 将 include  属性添加到队列中
 			this.profiles.addAll(includedViaProperty);
+			// 将 activatedViaProperty 添加入 profiles 队列 ，并设置 activatedProfiles 为激活状态
 			addActiveProfiles(activatedViaProperty);
+			// 如果没有任何 profile 配置，也就是默认只添加一个 null ,则执行内部逻辑
 			if (this.profiles.size() == 1) { // only has null profile
 				for (String defaultProfileName : this.environment.getDefaultProfiles()) {
 					Profile defaultProfile = new Profile(defaultProfileName, true);

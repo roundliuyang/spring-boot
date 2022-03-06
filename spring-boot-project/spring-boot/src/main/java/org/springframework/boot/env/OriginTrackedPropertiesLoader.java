@@ -70,12 +70,16 @@ class OriginTrackedPropertiesLoader {
 	 * @return the loaded properties
 	 * @throws IOException on read error
 	 */
-	Map<String, OriginTrackedValue> load(boolean expandLists) throws IOException {
+	Map<String, OriginTrackedValue>  load(boolean expandLists) throws IOException {
+		// 创建配置文件的reader
 		try (CharacterReader reader = new CharacterReader(this.resource)) {
 			Map<String, OriginTrackedValue> result = new LinkedHashMap<>();
 			StringBuilder buffer = new StringBuilder();
+			// 读取文件中的数据
 			while (reader.read()) {
+				// 读取文件中的 key
 				String key = loadKey(buffer, reader).trim();
+				// 扩展列表的处理
 				if (expandLists && key.endsWith("[]")) {
 					key = key.substring(0, key.length() - 2);
 					int index = 0;
@@ -89,6 +93,7 @@ class OriginTrackedPropertiesLoader {
 					while (!reader.isEndOfLine());
 				}
 				else {
+					// 读取文件中 value 并封装为 OriOriginTrackedValue
 					OriginTrackedValue value = loadValue(buffer, reader, false);
 					put(result, key, value);
 				}

@@ -233,6 +233,7 @@ class OnClassCondition extends FilteringSpringBootCondition {
 				String autoConfigurationClass = autoConfigurationClasses[i];
 				if (autoConfigurationClass != null) {
 					//  获得指定自动配置类的 @ConditionalOnClass 注解的要求类
+					// 加载META-INF/spring-autoconfigure-metadata.properties中的配置
 					String candidates = autoConfigurationMetadata.get(autoConfigurationClass, "ConditionalOnClass");
 					// 执行匹配
 					if (candidates != null) {
