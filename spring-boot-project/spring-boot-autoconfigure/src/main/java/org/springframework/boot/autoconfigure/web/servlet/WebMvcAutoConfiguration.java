@@ -254,6 +254,9 @@ public class WebMvcAutoConfiguration {
 			return resolver;
 		}
 
+		/**
+		 * ContentNegotiatingViewResolver 的实例化比较简单，，创建对象，设置请求资源类型管理器为 ContentNegotiationManager，并设置优先级
+		 */
 		@Bean
 		@ConditionalOnBean(ViewResolver.class)
 		@ConditionalOnMissingBean(name = "viewResolver", value = ContentNegotiatingViewResolver.class)
@@ -438,14 +441,17 @@ public class WebMvcAutoConfiguration {
 		@Bean
 		public WelcomePageHandlerMapping welcomePageHandlerMapping(ApplicationContext applicationContext,
 				FormattingConversionService mvcConversionService, ResourceUrlProvider mvcResourceUrlProvider) {
+			// 构造 WelcomePageHandlerMapping 对象
 			WelcomePageHandlerMapping welcomePageHandlerMapping = new WelcomePageHandlerMapping(
 					new TemplateAvailabilityProviders(applicationContext), applicationContext, getWelcomePage(),
 					this.mvcProperties.getStaticPathPattern());
+			// 设置拦截器
 			welcomePageHandlerMapping.setInterceptors(getInterceptors(mvcConversionService, mvcResourceUrlProvider));
 			welcomePageHandlerMapping.setCorsConfigurations(getCorsConfigurations());
 			return welcomePageHandlerMapping;
 		}
 
+		// 遍历资源路径并拼接每个路径下 index.html 文件，过滤出可用的 index.html 文件
 		private Resource getWelcomePage() {
 			for (String location : this.resourceProperties.getStaticLocations()) {
 				Resource indexHtml = getIndexHtml(location);
@@ -459,7 +465,7 @@ public class WebMvcAutoConfiguration {
 			}
 			return null;
 		}
-
+		// 获取欢迎页资源
 		private Resource getIndexHtml(String location) {
 			return getIndexHtml(this.resourceLoader.getResource(location));
 		}

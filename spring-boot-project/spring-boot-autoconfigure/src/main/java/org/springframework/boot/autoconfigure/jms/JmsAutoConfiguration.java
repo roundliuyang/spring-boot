@@ -51,7 +51,7 @@ import org.springframework.jms.support.destination.DestinationResolver;
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnClass({ Message.class, JmsTemplate.class })
 @ConditionalOnBean(ConnectionFactory.class)
-@EnableConfigurationProperties(JmsProperties.class)
+@EnableConfigurationProperties(JmsProperties.class)     // 引入了 JMS 配置属性类，对应的就是在application.properties 文件中配置的以 “spring.jms”为前缀的属性
 @Import(JmsAnnotationDrivenConfiguration.class)
 public class JmsAutoConfiguration {
 

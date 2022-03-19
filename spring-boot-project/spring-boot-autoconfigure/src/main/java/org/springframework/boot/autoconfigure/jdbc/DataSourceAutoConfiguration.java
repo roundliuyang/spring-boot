@@ -104,6 +104,7 @@ public class DataSourceAutoConfiguration {
 		@Override
 		public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata) {
 			ConditionMessage.Builder message = ConditionMessage.forCondition("PooledDataSource");
+			// 检查指定的类加载器中是否存在指定的数据源，存在则返回匹配
 			if (DataSourceBuilder.findType(context.getClassLoader()) != null) {
 				return ConditionOutcome.match(message.foundExactly("supported DataSource"));
 			}
@@ -129,13 +130,16 @@ public class DataSourceAutoConfiguration {
 			if (hasDataSourceUrlProperty(context)) {
 				return ConditionOutcome.noMatch(message.because(DATASOURCE_URL_PROPERTY + " is set"));
 			}
+			// 是否支持池化的数据源，支持则返回不匹配
 			if (anyMatches(context, metadata, this.pooledCondition)) {
 				return ConditionOutcome.noMatch(message.foundExactly("supported pooled data source"));
 			}
+			// 基于枚举类 EmbeddedDatabaseType ，通过类加载器获得嵌入的数据库的连接信息
 			EmbeddedDatabaseType type = EmbeddedDatabaseConnection.get(context.getClassLoader()).getType();
 			if (type == null) {
 				return ConditionOutcome.noMatch(message.didNotFind("embedded database").atAll());
 			}
+			// 如果枚举类中存在，则返回匹配
 			return ConditionOutcome.match(message.found("embedded database").items(type));
 		}
 

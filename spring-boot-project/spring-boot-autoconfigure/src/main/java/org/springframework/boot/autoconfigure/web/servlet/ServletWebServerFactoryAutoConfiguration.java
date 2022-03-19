@@ -57,9 +57,14 @@ import org.springframework.web.filter.ForwardedHeaderFilter;
  */
 @Configuration(proxyBeanMethods = false)
 @AutoConfigureOrder(Ordered.HIGHEST_PRECEDENCE)
+// 需要存在 ServletRequest 类
 @ConditionalOnClass(ServletRequest.class)
+// 需要 web  类型 为 servlet 类型
 @ConditionalOnWebApplication(type = Type.SERVLET)
+// 加载 ServerProperties 中的配置
 @EnableConfigurationProperties(ServerProperties.class)
+// 导入内部类 BeanPostProcessorsRegistrar 用来注册 BeanPostProcessor
+// 导入ServletWebServerFactoryConfiguration 的三个内部类，用来判断应用服务器类型
 @Import({ ServletWebServerFactoryAutoConfiguration.BeanPostProcessorsRegistrar.class,
 		ServletWebServerFactoryConfiguration.EmbeddedTomcat.class,
 		ServletWebServerFactoryConfiguration.EmbeddedJetty.class,
@@ -78,6 +83,10 @@ public class ServletWebServerFactoryAutoConfiguration {
 		return new TomcatServletWebServerFactoryCustomizer(serverProperties);
 	}
 
+	/**
+	 * 实例化注册 FilterRegistrationBean<ForwardedHeaderFilter>
+	 * 并设置其 DispatcherType 类型和优先级
+	 */
 	@Bean
 	@ConditionalOnMissingFilterBean(ForwardedHeaderFilter.class)
 	@ConditionalOnProperty(value = "server.forward-headers-strategy", havingValue = "framework")
@@ -97,6 +106,11 @@ public class ServletWebServerFactoryAutoConfiguration {
 
 		private ConfigurableListableBeanFactory beanFactory;
 
+		/**
+		 * 实现 BeanFactoryAware 的方法，设置 BeanFactory
+		 * @param beanFactory
+		 * @throws BeansException
+		 */
 		@Override
 		public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
 			if (beanFactory instanceof ConfigurableListableBeanFactory) {
@@ -104,6 +118,9 @@ public class ServletWebServerFactoryAutoConfiguration {
 			}
 		}
 
+		/**
+		 *  注册一个 WebServerFactoryCustomizerBeanPostProcessor
+		 */
 		@Override
 		public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata,
 				BeanDefinitionRegistry registry) {
@@ -116,7 +133,11 @@ public class ServletWebServerFactoryAutoConfiguration {
 					ErrorPageRegistrarBeanPostProcessor.class);
 		}
 
+		/**
+		 * 检查并注册 Bean
+		 */
 		private void registerSyntheticBeanIfMissing(BeanDefinitionRegistry registry, String name, Class<?> beanClass) {
+			// 检查指定类型的 Bean name数组是否存在，如果不存在则创建Bean并注入容器中
 			if (ObjectUtils.isEmpty(this.beanFactory.getBeanNamesForType(beanClass, true, false))) {
 				RootBeanDefinition beanDefinition = new RootBeanDefinition(beanClass);
 				beanDefinition.setSynthetic(true);

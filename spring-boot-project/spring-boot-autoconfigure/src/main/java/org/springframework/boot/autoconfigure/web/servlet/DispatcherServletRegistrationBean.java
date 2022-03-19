@@ -44,6 +44,7 @@ public class DispatcherServletRegistrationBean extends ServletRegistrationBean<D
 		super(servlet);
 		Assert.notNull(path, "Path must not be null");
 		this.path = path;
+		// getServletUrlMapping 方法的功能是获取 Servlet 的 URL配置
 		super.addUrlMappings(getServletUrlMapping());
 	}
 
@@ -52,11 +53,19 @@ public class DispatcherServletRegistrationBean extends ServletRegistrationBean<D
 		return this.path;
 	}
 
+	/**
+	 * 重写父类方法，但抛出异常，相当于禁用该操作
+	 * @param urlMappings the mappings to set
+	 */
 	@Override
 	public void setUrlMappings(Collection<String> urlMappings) {
 		throw new UnsupportedOperationException("URL Mapping cannot be changed on a DispatcherServlet registration");
 	}
 
+	/**
+	 * 重写父类的方法，但抛出异常，相当于禁用该操作
+	 * @param urlMappings the mappings to add
+	 */
 	@Override
 	public void addUrlMappings(String... urlMappings) {
 		throw new UnsupportedOperationException("URL Mapping cannot be changed on a DispatcherServlet registration");
