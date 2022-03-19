@@ -77,7 +77,9 @@ public class JmsAutoConfiguration {
 		@ConditionalOnSingleCandidate(ConnectionFactory.class)
 		public JmsTemplate jmsTemplate(ConnectionFactory connectionFactory) {
 			PropertyMapper map = PropertyMapper.get();
+			// 基于 ConnectionFactory 创建 JmsTemplate 对象
 			JmsTemplate template = new JmsTemplate(connectionFactory);
+			// 设置是否为发布订阅模式
 			template.setPubSubDomain(this.properties.isPubSubDomain());
 			map.from(this.destinationResolver::getIfUnique).whenNonNull().to(template::setDestinationResolver);
 			map.from(this.messageConverter::getIfUnique).whenNonNull().to(template::setMessageConverter);
@@ -110,12 +112,14 @@ public class JmsAutoConfiguration {
 		@ConditionalOnSingleCandidate(JmsTemplate.class)
 		public JmsMessagingTemplate jmsMessagingTemplate(JmsProperties properties, JmsTemplate jmsTemplate) {
 			JmsMessagingTemplate messagingTemplate = new JmsMessagingTemplate(jmsTemplate);
+			// 设置目标名称
 			mapTemplateProperties(properties.getTemplate(), messagingTemplate);
 			return messagingTemplate;
 		}
 
 		private void mapTemplateProperties(Template properties, JmsMessagingTemplate messagingTemplate) {
 			PropertyMapper map = PropertyMapper.get().alwaysApplyingWhenNonNull();
+			// 设置目标名称 
 			map.from(properties::getDefaultDestination).to(messagingTemplate::setDefaultDestinationName);
 		}
 

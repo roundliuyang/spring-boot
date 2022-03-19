@@ -66,6 +66,7 @@ class ActiveMQConnectionFactoryConfiguration {
 							.createConnectionFactory(ActiveMQConnectionFactory.class);
 		}
 
+		// 注解部分说明 如果未配置 spring.jms.cache.enabled 或配置其值为 value ，均会使该自动配置生效。
 		@Configuration(proxyBeanMethods = false)
 		@ConditionalOnClass(CachingConnectionFactory.class)
 		@ConditionalOnProperty(prefix = "spring.jms.cache", name = "enabled", havingValue = "true",

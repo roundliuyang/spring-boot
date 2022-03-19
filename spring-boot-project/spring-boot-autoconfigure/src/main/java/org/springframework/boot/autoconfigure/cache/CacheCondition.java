@@ -46,17 +46,22 @@ class CacheCondition extends SpringBootCondition {
 		ConditionMessage.Builder message = ConditionMessage.forCondition("Cache", sourceClass);
 		Environment environment = context.getEnvironment();
 		try {
+			// 创建指定环境的Binder,然后绑定属性到对象上
 			BindResult<CacheType> specified = Binder.get(environment).bind("spring.cache.type", CacheType.class);
+			// 如果未绑定，则返回匹配
 			if (!specified.isBound()) {
 				return ConditionOutcome.match(message.because("automatic cache type"));
 			}
+			// 获取所需的缓存类型
 			CacheType required = CacheConfigurations.getType(((AnnotationMetadata) metadata).getClassName());
+			// 如果已绑定，并且绑定的类型与所需的换粗类型相同，则返回匹配
 			if (specified.get() == required) {
 				return ConditionOutcome.match(message.because(specified.get() + " cache type"));
 			}
 		}
 		catch (BindException ex) {
 		}
+		// 其他情况则返回不匹配
 		return ConditionOutcome.noMatch(message.because("unknown cache type"));
 	}
 

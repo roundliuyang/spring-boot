@@ -54,8 +54,11 @@ class JmsAnnotationDrivenConfiguration {
 	JmsAnnotationDrivenConfiguration(ObjectProvider<DestinationResolver> destinationResolver,
 			ObjectProvider<JtaTransactionManager> transactionManager, ObjectProvider<MessageConverter> messageConverter,
 			JmsProperties properties) {
+		// DestinationResolver 用于解决JMS 目标的策略接口，被JmsTemplate 用于将目标名称从简单的字符串解析为实际的 Destination 实现实例
 		this.destinationResolver = destinationResolver;
+		// JtaTransactionManager  是 PlatformTransactionManager 的实现类，它提供了 Spring 的 JTA 的事务管理，也可用于分布式事务的管理
 		this.transactionManager = transactionManager;
+		// MessageConverter 是一个策略接口，用于指定 Java 对象和 JMS 消息之间的转换器。
 		this.messageConverter = messageConverter;
 		this.properties = properties;
 	}

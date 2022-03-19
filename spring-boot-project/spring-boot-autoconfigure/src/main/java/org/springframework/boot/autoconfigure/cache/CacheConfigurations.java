@@ -31,7 +31,7 @@ import org.springframework.util.Assert;
 final class CacheConfigurations {
 
 	private static final Map<CacheType, Class<?>> MAPPINGS;
-
+	// 定义 CacheType 与 @Configuration 之前的对应关系
 	static {
 		Map<CacheType, Class<?>> mappings = new EnumMap<>(CacheType.class);
 		mappings.put(CacheType.GENERIC, GenericCacheConfiguration.class);

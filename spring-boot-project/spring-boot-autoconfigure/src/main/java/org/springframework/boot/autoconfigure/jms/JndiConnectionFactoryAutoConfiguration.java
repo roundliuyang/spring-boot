@@ -52,24 +52,29 @@ import org.springframework.util.StringUtils;
 public class JndiConnectionFactoryAutoConfiguration {
 
 	// Keep these in sync with the condition below
+	// 该地址数组，与下面的条件保持一致
 	private static final String[] JNDI_LOCATIONS = { "java:/JmsXA", "java:/XAConnectionFactory" };
 
 	@Bean
 	public ConnectionFactory jmsConnectionFactory(JmsProperties properties) throws NamingException {
+		// 如果配置文件中配置了JNDI 名称，则通过指定的 JNDI 名称获取 ConnectionFactory
 		JndiLocatorDelegate jndiLocatorDelegate = JndiLocatorDelegate.createDefaultResourceRefLocator();
 		if (StringUtils.hasLength(properties.getJndiName())) {
 			return jndiLocatorDelegate.lookup(properties.getJndiName(), ConnectionFactory.class);
 		}
+		// 如果配置文件中未配置 JNDI 名称，则使用默认的名称进行查找
 		return findJndiConnectionFactory(jndiLocatorDelegate);
 	}
 
 	private ConnectionFactory findJndiConnectionFactory(JndiLocatorDelegate jndiLocatorDelegate) {
+		// 便利默认值进行查找
 		for (String name : JNDI_LOCATIONS) {
 			try {
 				return jndiLocatorDelegate.lookup(name, ConnectionFactory.class);
 			}
 			catch (NamingException ex) {
 				// Swallow and continue
+				// 吞没异常并继续
 			}
 		}
 		throw new IllegalStateException(

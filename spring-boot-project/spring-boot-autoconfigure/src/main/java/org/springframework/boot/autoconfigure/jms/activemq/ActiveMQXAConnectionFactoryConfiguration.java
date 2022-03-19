@@ -45,7 +45,7 @@ import org.springframework.context.annotation.Primary;
 @ConditionalOnBean(XAConnectionFactoryWrapper.class)
 @ConditionalOnMissingBean(ConnectionFactory.class)
 class ActiveMQXAConnectionFactoryConfiguration {
-
+	// 创建 XA 连接工厂
 	@Primary
 	@Bean(name = { "jmsConnectionFactory", "xaJmsConnectionFactory" })
 	ConnectionFactory jmsConnectionFactory(ActiveMQProperties properties,
@@ -56,7 +56,7 @@ class ActiveMQXAConnectionFactoryConfiguration {
 						.createConnectionFactory(ActiveMQXAConnectionFactory.class);
 		return wrapper.wrapConnectionFactory(connectionFactory);
 	}
-
+	// 创建普通链接工厂
 	@Bean
 	@ConditionalOnProperty(prefix = "spring.activemq.pool", name = "enabled", havingValue = "false",
 			matchIfMissing = true)
