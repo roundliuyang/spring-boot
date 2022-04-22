@@ -42,6 +42,13 @@ public class MainMethodRunner {
 		this.args = (args != null) ? args.clone() : null;
 	}
 
+	/**
+	 * 上述代码属性 mainClass 参数便是在 Manifest.MF 文件中我们自定义的Spring Boot 的入口类，即Start-class 属性值。
+	 * 在 MainMethodRunner 的 run 方法中，通过反射获得入口类的 main 方法并调用。
+	 * 至此，SpringBoot 入口类的 main 方法正式执行，所有应用程序类文件均可通过/BOOT-INF/class 加载
+	 * 所有依赖的第三方jar 均可通过 /BOOT-INF/lib 加载。
+	 * @throws Exception
+	 */
 	public void run() throws Exception {
 		Class<?> mainClass = Thread.currentThread().getContextClassLoader().loadClass(this.mainClassName);
 		Method mainMethod = mainClass.getDeclaredMethod("main", String[].class);

@@ -49,6 +49,7 @@ public class JarLauncher extends ExecutableArchiveLauncher {
 	}
 
 	public static void main(String[] args) throws Exception {
+		// 当创建 JarLauncher 对象，获得了当前归档文件的 Archive,下一步就是调用  launch 方法，该方法由 Launch 类实现。 Launch  中的这个 launch 方法就是启动应用程序的入口，而该方法的定义是为了让子类的静态 main 方法调用的。
 		new JarLauncher().launch(args);
 	}
 

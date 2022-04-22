@@ -46,8 +46,12 @@ public abstract class Launcher {
 	 * @throws Exception if the application fails to launch
 	 */
 	protected void launch(String[] args) throws Exception {
+		// 注册一个“java.protocol.pkgs”属性，以便定位 URLStreamHandler 来处理 jar URL
 		JarFile.registerUrlProtocolHandler();
+		// 获取 Archive,并通过Archive 的URL 获得 ClassLoader (这里为 LaunchedURLClassLoader)
 		ClassLoader classLoader = createClassLoader(getClassPathArchives());
+		// 启动应用程序（创建 MainMethodRunner类并调用其 run 方法）
+		// 当 MainMethodRunner 的run 方法被调用，便真正开始启动应用程序了
 		launch(args, getMainClass(), classLoader);
 	}
 
@@ -113,6 +117,7 @@ public abstract class Launcher {
 	protected abstract List<Archive> getClassPathArchives() throws Exception;
 
 	protected final Archive createArchive() throws Exception {
+		// 通过获得当前 Class 类的信息，查找到当前归档文件的路径
 		ProtectionDomain protectionDomain = getClass().getProtectionDomain();
 		CodeSource codeSource = protectionDomain.getCodeSource();
 		URI location = (codeSource != null) ? codeSource.getLocation().toURI() : null;
@@ -120,10 +125,12 @@ public abstract class Launcher {
 		if (path == null) {
 			throw new IllegalStateException("Unable to determine code source archive");
 		}
+		// 获得路径之后，创建对应的文件，并检查是否存在
 		File root = new File(path);
 		if (!root.exists()) {
 			throw new IllegalStateException("Unable to determine code source archive from " + root);
 		}
+		// 如果是目录，则创建 ExplodedArchive，否则创建 JarFileArchive
 		return (root.isDirectory() ? new ExplodedArchive(root) : new JarFileArchive(root));
 	}
 

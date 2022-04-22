@@ -50,13 +50,14 @@ import org.springframework.util.ClassUtils;
  */
 @Configuration(proxyBeanMethods = false)
 class HealthEndpointConfiguration {
-
+	// 实例化 StatusAggregator ,health 状态聚合器
 	@Bean
 	@ConditionalOnMissingBean
 	StatusAggregator healthStatusAggregator(HealthEndpointProperties properties) {
+		// 默认采用其 SimpleStatusAggregator 实现，如果位指定 status,则默认集合Status 类中定义的所有状态的集合
 		return new SimpleStatusAggregator(properties.getStatus().getOrder());
 	}
-
+	// 实例化 HttpCodeStatusMapper  ,用于映射 Health 到 Http 的状态码
 	@Bean
 	@ConditionalOnMissingBean
 	HttpCodeStatusMapper healthHttpCodeStatusMapper(HealthEndpointProperties properties) {

@@ -25,6 +25,9 @@ import java.util.jar.Manifest;
 import org.springframework.boot.loader.Launcher;
 
 /**
+ *
+ * 通过 Archive 接口定义的方法可以看出，Archive 不仅提供了获得归档自身 URL 的方法，也提供了获得该归档内部jar 文件列表的方法，而jar 内部的jar文件依旧会被SpringBoot 认为是一个Archive
+ * 通常，jar 里的资源分隔符是 ！/
  * An archive that can be launched by the {@link Launcher}.
  *
  * @author Phillip Webb
@@ -34,6 +37,7 @@ import org.springframework.boot.loader.Launcher;
 public interface Archive extends Iterable<Archive.Entry>, AutoCloseable {
 
 	/**
+	 * 获取该归档的url
 	 * Returns a URL that can be used to load the archive.
 	 * @return the archive URL
 	 * @throws MalformedURLException if the URL is malformed
@@ -41,6 +45,7 @@ public interface Archive extends Iterable<Archive.Entry>, AutoCloseable {
 	URL getUrl() throws MalformedURLException;
 
 	/**
+	 * 获取 jar!/META-INF/MANIFEST.MF 或 [ArchiveDir]/META-INF/MANIFEST.MF
 	 * Returns the manifest of the archive.
 	 * @return the manifest
 	 * @throws IOException if the manifest cannot be read
@@ -48,6 +53,7 @@ public interface Archive extends Iterable<Archive.Entry>, AutoCloseable {
 	Manifest getManifest() throws IOException;
 
 	/**
+	 * 获取 jar!/BOOT-INF/lib/*.jar 或 [ArchiveDir]/BOOT-INF/lib/*.jar
 	 * Returns nested {@link Archive}s for entries that match the specified filter.
 	 * @param filter the filter used to limit entries
 	 * @return nested archives

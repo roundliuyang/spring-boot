@@ -32,12 +32,12 @@ import org.springframework.context.annotation.Import;
  * @author Phillip Webb
  * @since 2.0.0
  */
-@Configuration(proxyBeanMethods = false)
-@ConditionalOnAvailableEndpoint(endpoint = HealthEndpoint.class)
-@EnableConfigurationProperties
+@Configuration(proxyBeanMethods = false)    //开启了自动配置
+@ConditionalOnAvailableEndpoint(endpoint = HealthEndpoint.class)     // 为SpringBoot 2.2 版本新引入的的注解，表示HealthEndPoint 的endpoint 仅在可用时才会进行自动化配置
+@EnableConfigurationProperties   // 开启属性配置
 @Import({ LegacyHealthEndpointAdaptersConfiguration.class, LegacyHealthEndpointCompatibilityConfiguration.class,
 		HealthEndpointConfiguration.class, ReactiveHealthEndpointConfiguration.class,
-		HealthEndpointWebExtensionConfiguration.class, HealthEndpointReactiveWebExtensionConfiguration.class })
+		HealthEndpointWebExtensionConfiguration.class, HealthEndpointReactiveWebExtensionConfiguration.class })    // 引入多个自动装载类
 public class HealthEndpointAutoConfiguration {
 
 	@Bean
