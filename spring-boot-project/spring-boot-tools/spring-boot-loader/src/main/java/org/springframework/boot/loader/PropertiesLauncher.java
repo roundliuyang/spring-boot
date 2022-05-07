@@ -343,12 +343,20 @@ public class PropertiesLauncher extends Launcher {
 		return mainClass;
 	}
 
+	/*
+		基于获得的 Archive 数组，创建自定义 ClassLoader 实现类 LaunchedURLClassLoader，
+		通过它来加载 BOOT-INF/classes 目录下的类，以及 BOOT-INF/lib 目录下的 jar 包中的类。
+	 */
 	@Override
 	protected ClassLoader createClassLoader(List<Archive> archives) throws Exception {
+		//  获得所有 Archive 的 URL 地址
+		//  第一个参数 urls，使用的是 Archive 集合对应的 URL 地址们，从而告诉 LaunchedURLClassLoader 读取 jar 的地址。
 		Set<URL> urls = new LinkedHashSet<>(archives.size());
 		for (Archive archive : archives) {
 			urls.add(archive.getUrl());
 		}
+		//  创建加载这些 URL 的 ClassLoader
+		// 第二个参数 parent，设置 LaunchedURLClassLoader 的父加载器。这里后续胖友可以理解下，类加载器的双亲委派模型，这里就拓展开了。
 		ClassLoader loader = new LaunchedURLClassLoader(urls.toArray(NO_URLS), getClass().getClassLoader());
 		debug("Classpath: " + urls);
 		String customLoaderClassName = getProperty("loader.classLoader");

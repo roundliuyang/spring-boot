@@ -29,6 +29,8 @@ import java.util.jar.JarFile;
 import org.springframework.boot.loader.jar.Handler;
 
 /**
+ * LaunchedURLClassLoader 是 spring-boot-loader 项目自定义的类加载器，
+ * 实现对 jar 包中 META-INF/classes 目录下的类和 META-INF/lib 内嵌的 jar 包中的类的加载。
  * {@link ClassLoader} used by the {@link Launcher}.
  *
  * @author Phillip Webb
@@ -78,6 +80,7 @@ public class LaunchedURLClassLoader extends URLClassLoader {
 		Handler.setUseFastConnectionExceptions(true);
 		try {
 			try {
+				// 定义包所路径
 				definePackageIfNecessary(name);
 			}
 			catch (IllegalArgumentException ex) {
@@ -89,6 +92,8 @@ public class LaunchedURLClassLoader extends URLClassLoader {
 					throw new AssertionError("Package " + name + " has already been defined but it could not be found");
 				}
 			}
+			// 加载类
+			// 如此，我们就实现了通过 LaunchedURLClassLoader 加载 jar 包中内嵌的类。
 			return super.loadClass(name, resolve);
 		}
 		finally {
@@ -101,10 +106,14 @@ public class LaunchedURLClassLoader extends URLClassLoader {
 	 * ensure that the appropriate manifest for nested JARs is associated with the
 	 * package.
 	 * @param className the class name being found
+	 *
+	 * 在通过父类的 #getPackage(String name) 方法获取不到指定类所在的包时，会通过遍历 urls 数组，
+	 *  从 jar 包中加载类所在的包。当找到包时，会调用 #definePackage(String name, Manifest man, URL url) 方法，设置包所在的 Archive 对应的 url。
 	 */
 	private void definePackageIfNecessary(String className) {
 		int lastDot = className.lastIndexOf('.');
 		if (lastDot >= 0) {
+			// 获取类所在包名
 			String packageName = className.substring(0, lastDot);
 			if (getPackage(packageName) == null) {
 				try {
@@ -127,6 +136,7 @@ public class LaunchedURLClassLoader extends URLClassLoader {
 	private void definePackage(String className, String packageName) {
 		try {
 			AccessController.doPrivileged((PrivilegedExceptionAction<Object>) () -> {
+				// 把类名解析成路径并加上 .class后缀
 				String packageEntryName = packageName.replace('.', '/') + "/";
 				String classEntryName = className.replace('.', '/') + ".class";
 				for (URL url : getURLs()) {

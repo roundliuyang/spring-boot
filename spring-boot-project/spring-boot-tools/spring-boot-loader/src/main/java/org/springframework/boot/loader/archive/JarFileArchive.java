@@ -82,6 +82,7 @@ public class JarFileArchive implements Archive {
 	@Override
 	public List<Archive> getNestedArchives(EntryFilter filter) throws IOException {
 		List<Archive> nestedArchives = new ArrayList<>();
+		// 遍历
 		for (Entry entry : this) {
 			if (filter.matches(entry)) {
 				nestedArchives.add(getNestedArchive(entry));
@@ -107,6 +108,7 @@ public class JarFileArchive implements Archive {
 		}
 		try {
 			JarFile jarFile = this.jarFile.getNestedJarFile(jarEntry);
+			// 返回JarFileArchive
 			return new JarFileArchive(jarFile);
 		}
 		catch (Exception ex) {

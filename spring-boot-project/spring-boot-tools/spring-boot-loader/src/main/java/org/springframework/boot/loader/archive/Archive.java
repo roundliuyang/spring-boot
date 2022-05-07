@@ -25,7 +25,7 @@ import java.util.jar.Manifest;
 import org.springframework.boot.loader.Launcher;
 
 /**
- *
+ * Archive 接口，是 spring-boot-loader 项目定义的档案抽象
  * 通过 Archive 接口定义的方法可以看出，Archive 不仅提供了获得归档自身 URL 的方法，也提供了获得该归档内部jar 文件列表的方法，而jar 内部的jar文件依旧会被SpringBoot 认为是一个Archive
  * 通常，jar 里的资源分隔符是 ！/
  * An archive that can be launched by the {@link Launcher}.

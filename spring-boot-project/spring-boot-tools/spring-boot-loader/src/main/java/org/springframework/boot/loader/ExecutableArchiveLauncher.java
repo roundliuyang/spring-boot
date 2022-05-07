@@ -51,8 +51,12 @@ public abstract class ExecutableArchiveLauncher extends Launcher {
 		return this.archive;
 	}
 
+	/*
+		从 jar 包的 MANIFEST.MF 文件的 Start-Class 配置项，，获得我们设置的 Spring Boot 的主启动类。
+	 */
 	@Override
 	protected String getMainClass() throws Exception {
+		// 获得启动的类的全名,如 cn.iocoder.springboot.lab39.skywalkingdemo.Application
 		Manifest manifest = this.archive.getManifest();
 		String mainClass = null;
 		if (manifest != null) {
@@ -66,7 +70,24 @@ public abstract class ExecutableArchiveLauncher extends Launcher {
 
 	@Override
 	protected List<Archive> getClassPathArchives() throws Exception {
+		/*
+			获得所有 Archive
+			this::isNestedArchive 代码段，创建了 EntryFilter 匿名实现类，用于过滤 jar 包不需要的目录。
+			archive 对象要执行 getNestedArchives 时，会传入一个 EntryFilter，以此来获取一组被嵌套的 Archive 。
+			而这个 EntryFilter 的工作机制就是上面的 isNestedArchive 方法，在 JarLauncher 中也有定义：
+
+					protected boolean isNestedArchive(Archive.Entry entry) {
+   						 if (entry.isDirectory()) {
+       						 return entry.getName().equals(BOOT_INF_CLASSES);
+   				   		 }
+   					 	return entry.getName().startsWith(BOOT_INF_LIB);
+					}
+
+			 现在是不是对 Archive 稍微有点感觉落？继续附加如下代码，打印 JarFileArchive 的 #getNestedArchives(EntryFilter filter) 方法的执行结果。
+			 从执行结果可以看出，BOOT-INF/classes/ 目录被归类为一个 Archive 对象，而 BOOT-INF/lib/ 目录下的每个内嵌 jar 包都对应一个 Archive 对象。
+		 */
 		List<Archive> archives = new ArrayList<>(this.archive.getNestedArchives(this::isNestedArchive));
+		// 后续处理
 		postProcessClassPathArchives(archives);
 		return archives;
 	}

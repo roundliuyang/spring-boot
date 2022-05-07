@@ -46,7 +46,7 @@ public abstract class Launcher {
 	 * @throws Exception if the application fails to launch
 	 */
 	protected void launch(String[] args) throws Exception {
-		// 注册一个“java.protocol.pkgs”属性，以便定位 URLStreamHandler 来处理 jar URL
+		// 调用 JarFile 的 #registerUrlProtocolHandler() 方法，注册 Spring Boot 自定义的 URLStreamHandler 实现类，用于 jar 包的加载读取。
 		JarFile.registerUrlProtocolHandler();
 		// 获取 Archive,并通过Archive 的URL 获得 ClassLoader (这里为 LaunchedURLClassLoader)
 		ClassLoader classLoader = createClassLoader(getClassPathArchives());
@@ -85,9 +85,13 @@ public abstract class Launcher {
 	 * @param mainClass the main class to run
 	 * @param classLoader the classloader
 	 * @throws Exception if the launch fails
+	 *
+	 * 该方法负责最终的 Spring Boot 应用真正的启动。
 	 */
 	protected void launch(String[] args, String mainClass, ClassLoader classLoader) throws Exception {
+		// <1> 设置 LaunchedURLClassLoader 作为类加载器,从而保证能够从 jar 加载到相应的类。
 		Thread.currentThread().setContextClassLoader(classLoader);
+		// <2> 创建 MainMethodRunner 对象，并执行 run 方法，启动 Spring Boot 应用
 		createMainMethodRunner(mainClass, args, classLoader).run();
 	}
 
@@ -117,7 +121,12 @@ public abstract class Launcher {
 	protected abstract List<Archive> getClassPathArchives() throws Exception;
 
 	protected final Archive createArchive() throws Exception {
-		// 通过获得当前 Class 类的信息，查找到当前归档文件的路径
+		/*
+			通过获得当前 Class 类的信息，查找到当前归档文件的路径
+			到 File root = new File 之前的部分，这段代码都是在找当前类的所在jar包的绝对路径
+			之后下面把这个文件创建出来，并以此创建一个 JarFileArchive 对象。
+			而这个 JarFileArchive 是 Archive 的子类，这个 Archive 就可以被 Launcher 启动。
+		 */
 		ProtectionDomain protectionDomain = getClass().getProtectionDomain();
 		CodeSource codeSource = protectionDomain.getCodeSource();
 		URI location = (codeSource != null) ? codeSource.getLocation().toURI() : null;
@@ -125,7 +134,10 @@ public abstract class Launcher {
 		if (path == null) {
 			throw new IllegalStateException("Unable to determine code source archive");
 		}
-		// 获得路径之后，创建对应的文件，并检查是否存在
+		/*
+			root 路径为 jar 包的绝对地址，也就是说创建 JarFileArchive 对象。原因是，Launcher 所在包为 org 下，它的根目录当然是 jar 包的绝对路径哈！
+			获得路径之后，创建对应的文件，并检查是否存在
+		 */
 		File root = new File(path);
 		if (!root.exists()) {
 			throw new IllegalStateException("Unable to determine code source archive from " + root);

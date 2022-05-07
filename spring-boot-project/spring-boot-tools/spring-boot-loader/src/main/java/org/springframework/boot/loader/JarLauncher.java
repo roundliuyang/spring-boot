@@ -42,9 +42,11 @@ public class JarLauncher extends ExecutableArchiveLauncher {
 
 	@Override
 	protected boolean isNestedArchive(Archive.Entry entry) {
+		// 如果是目录的情况，只要 BOOT-INF/classes/ 目录
 		if (entry.isDirectory()) {
 			return entry.getName().equals(BOOT_INF_CLASSES);
 		}
+		//  如果是文件的情况，只要 BOOT-INF/lib/ 目录下的 `jar` 包
 		return entry.getName().startsWith(BOOT_INF_LIB);
 	}
 
