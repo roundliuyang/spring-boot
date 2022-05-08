@@ -48,7 +48,11 @@ import org.springframework.data.repository.Repository;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
+//  Java 自带的注解。
+//	java.lang.annotation.@Inherited 注解，使用此注解声明出来的自定义注解，在使用此自定义注解时，如果注解在类上面时，子类会自动继承此注解，否则的话，子类不会继承此注解。
+//	这里一定要记住，使用 @Inherited 声明出来的注解，只有在类上使用时才会有效，对方法，属性等其他无效。
 @Inherited
+// 可以看到，它上面继承自 @Configuration 注解，所以两者功能也一致，可以将当前类内声明的一个或多个以 @Bean 注解标记的方法的实例纳入到 Srping 容器中，并且实例名就是方法名。
 @SpringBootConfiguration
 // 用于开启自动配置功能，是 spring-boot-autoconfigure 项目最核心的注解。
 @EnableAutoConfiguration

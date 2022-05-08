@@ -95,6 +95,9 @@ public abstract class AutoConfigurationPackages {
 	 * configuration class or classes.
 	 * @param registry the bean definition registry
 	 * @param packageNames the package names to set
+	 *
+	 * 注册一个用于存储包名（package）的 Bean 到 Spring IoC 容器中。代码如下：
+	 *
 	 */
 	public static void register(BeanDefinitionRegistry registry, String... packageNames) {
 		// 如果已经存在该Bean ,则修改其包（Package 属性）
@@ -149,6 +152,7 @@ public abstract class AutoConfigurationPackages {
 
 	/**
 	 * Wrapper for a package import.
+	 * 用于获得包名
 	 */
 	private static final class PackageImport {
 
