@@ -194,6 +194,7 @@ public class SpringApplication {
 	private static final String SYSTEM_PROPERTY_JAVA_AWT_HEADLESS = "java.awt.headless";
 
 	private static final Log logger = LogFactory.getLog(SpringApplication.class);
+
 	// 主要的 Java Config类的数组
 	private Set<Class<?>> primarySources;
 
@@ -205,6 +206,9 @@ public class SpringApplication {
 
 	private boolean logStartupInfo = true;
 
+	/**
+	 * 是否添加 JVM 启动参数
+	 */
 	private boolean addCommandLineProperties = true;
 
 	private boolean addConversionService = true;
@@ -233,6 +237,9 @@ public class SpringApplication {
 	// 	ApplicationListener 数组
 	private List<ApplicationListener<?>> listeners;
 
+	/**
+	 * 默认的属性集合
+	 */
 	private Map<String, Object> defaultProperties;
 
 	private Set<String> additionalProfiles = new HashSet<>();
@@ -290,7 +297,6 @@ public class SpringApplication {
 			// 获得当前 StackTraceElement 数组 （获取当前栈元素数组）
 			StackTraceElement[] stackTrace = new RuntimeException().getStackTrace();
 			// 遍历栈元素数组
-			//判断哪个执行run 方法
 			for (StackTraceElement stackTraceElement : stackTrace) {
 				// 匹配第一个 main 方法并返回
 				if ("main".equals(stackTraceElement.getMethodName())) {
@@ -339,7 +345,7 @@ public class SpringApplication {
 					new Class[] { ConfigurableApplicationContext.class }, context);
 			//  主要是调用所有初始化类的 initialize 方法,准备 ApplicationContext 对象，主要是初始化它的一些属性
 			prepareContext(context, environment, listeners, applicationArguments, printedBanner);
-			// 初始化spirng 容器，启动（刷新） Spring 容器
+			// 启动（刷新） Spring 容器
 			refreshContext(context);
 			// 执行 Spring 容器的初始化的后置逻辑。默认实现为空
 			afterRefresh(context, applicationArguments);
@@ -381,11 +387,13 @@ public class SpringApplication {
 		configureEnvironment(environment, applicationArguments.getSourceArgs());
 		// 将 ConfigurationPropertySources 附加到指定环境中的第一位，并动态跟踪环境的添加或删除
 		ConfigurationPropertySources.attach(environment);
+
 		// 通知 SpringApplicationRunListener 的数组，环境变量已经准备完成。（listener 环境准备，之前章节已经提到）
 		listeners.environmentPrepared(environment);
 		// 绑定 environment 到 SpringApplication 上
 		bindToSpringApplication(environment);
-		// 如果非自定义 environment ，则根据条件转换
+
+		// 如果非自定义 environment ，则根据条件转换。默认情况下，isCustomEnvironment 为 false ，所以会执行这块逻辑。但是，一般情况下，返回的还是 environment 自身，所以可以无视这块逻辑先。
 		if (!this.isCustomEnvironment) {
 			environment = new EnvironmentConverter(getClassLoader()).convertEnvironmentIfNecessary(environment,
 					deduceEnvironmentClass());
@@ -513,6 +521,7 @@ public class SpringApplication {
 			try {
 				// 获取 Class
 				Class<?> instanceClass = ClassUtils.forName(name, classLoader);
+				// 判断类是否实现自 type 类
 				Assert.isAssignable(type, instanceClass);
 				// 获取有参构造器
 				Constructor<?> constructor = instanceClass.getDeclaredConstructor(parameterTypes);

@@ -30,6 +30,8 @@ import org.springframework.util.ReflectionUtils;
  * A collection of {@link SpringApplicationRunListener}.
  *
  * @author Phillip Webb
+ *
+ * SpringApplicationRunListener 的实现类，只有 EventPublishingRunListener 类
  */
 class SpringApplicationRunListeners {
 
