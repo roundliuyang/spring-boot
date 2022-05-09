@@ -30,6 +30,8 @@ import org.springframework.context.annotation.Conditional;
  *
  * @author Dave Syer
  * @since 1.0.0
+ *
+ * 基于 SpEL 表达式作为判断条件
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE, ElementType.METHOD })

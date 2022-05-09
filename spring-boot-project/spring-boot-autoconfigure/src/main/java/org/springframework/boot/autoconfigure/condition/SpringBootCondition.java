@@ -42,11 +42,16 @@ public abstract class SpringBootCondition implements Condition {
 
 	@Override
 	public final boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
+		// 获得注解的是方法名还是类名
 		String classOrMethodName = getClassOrMethodName(metadata);
 		try {
+			// 条件匹配的结果
 			ConditionOutcome outcome = getMatchOutcome(context, metadata);
+			// 打印结果
 			logOutcome(classOrMethodName, outcome);
+			// 记录
 			recordEvaluation(context, classOrMethodName, outcome);
+			// 返回是否匹配
 			return outcome.isMatch();
 		}
 		catch (NoClassDefFoundError ex) {
@@ -73,10 +78,12 @@ public abstract class SpringBootCondition implements Condition {
 	}
 
 	private static String getClassOrMethodName(AnnotatedTypeMetadata metadata) {
+		// 类
 		if (metadata instanceof ClassMetadata) {
 			ClassMetadata classMetadata = (ClassMetadata) metadata;
 			return classMetadata.getClassName();
 		}
+		// 方法
 		MethodMetadata methodMetadata = (MethodMetadata) metadata;
 		return methodMetadata.getDeclaringClassName() + "#" + methodMetadata.getMethodName();
 	}
@@ -122,10 +129,13 @@ public abstract class SpringBootCondition implements Condition {
 	 * @param metadata the annotation meta-data
 	 * @param conditions conditions to test
 	 * @return {@code true} if any condition matches.
+	 * 判断是否匹配指定的 Condition 们中的任一一个
 	 */
 	protected final boolean anyMatches(ConditionContext context, AnnotatedTypeMetadata metadata,
 			Condition... conditions) {
+		// 遍历 Condition
 		for (Condition condition : conditions) {
+			// 执行匹配
 			if (matches(context, metadata, condition)) {
 				return true;
 			}
@@ -141,6 +151,7 @@ public abstract class SpringBootCondition implements Condition {
 	 * @return {@code true} if the condition matches.
 	 */
 	protected final boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata, Condition condition) {
+		// 如果是 SpringBootCondition 类型，执行 SpringBootCondition 的直接匹配方法（无需日志）
 		if (condition instanceof SpringBootCondition) {
 			return ((SpringBootCondition) condition).getMatchOutcome(context, metadata).isMatch();
 		}

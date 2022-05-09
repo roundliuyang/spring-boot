@@ -156,7 +156,10 @@ class OnClassCondition extends FilteringSpringBootCondition {
 	 * StandardOutcomesResolver
 	 */
 	private interface OutcomesResolver {
-
+		/**
+		 * 执行解析
+		 * @return 解析结果
+		 */
 		ConditionOutcome[] resolveOutcomes();
 
 	}

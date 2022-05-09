@@ -57,6 +57,8 @@ import org.springframework.context.annotation.Conditional;
  *
  * @author Phillip Webb
  * @since 1.0.0
+ *
+ * 当容器里有指定 Bean 条件下
  */
 @Target({ ElementType.TYPE, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)

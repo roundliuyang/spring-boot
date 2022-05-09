@@ -274,10 +274,9 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector, 
 		String[] excludes = getEnvironment().getProperty(PROPERTY_NAME_AUTOCONFIGURE_EXCLUDE, String[].class);
 		return (excludes != null) ? Arrays.asList(excludes) : Collections.emptyList();
 	}
-	// 我们可以看到 AutoConfigurationImportFilter 的使用，过滤可以忽略的配置类
 
 	/**
-	 *
+	 * 我们可以看到 AutoConfigurationImportFilter 的使用，过滤可以忽略的配置类
 	 * @param configurations  经过初次过滤之后的自动配置组件列表
 	 * @param autoConfigurationMetadata  元数据文件META-INF/spring-autoconfiguration-metadata.properties 中配置的实体类
 	 * @return

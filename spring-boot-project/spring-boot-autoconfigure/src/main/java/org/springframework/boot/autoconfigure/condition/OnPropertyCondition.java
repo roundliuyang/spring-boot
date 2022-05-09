@@ -41,6 +41,7 @@ import org.springframework.util.StringUtils;
  * @author Stephane Nicoll
  * @author Andy Wilkinson
  * @see ConditionalOnProperty
+ * 给 @ConditionalOnProperty 使用的 Condition 实现类。
  */
 @Order(Ordered.HIGHEST_PRECEDENCE + 40)
 class OnPropertyCondition extends SpringBootCondition {
@@ -66,7 +67,7 @@ class OnPropertyCondition extends SpringBootCondition {
 		// 如果都匹配，则返回匹配
 		return ConditionOutcome.match(ConditionMessage.of(match));
 	}
-
+	// 获得 @ConditionalOnProperty 注解的属性
 	private List<AnnotationAttributes> annotationAttributesFromMultiValueMap(
 			MultiValueMap<String, Object> multiValueMap) {
 		List<Map<String, Object>> maps = new ArrayList<>();
@@ -114,7 +115,7 @@ class OnPropertyCondition extends SpringBootCondition {
 	}
 
 	private static class Spec {
-
+		// 属性前缀
 		private final String prefix;
 		// 是否有指定值
 		private final String havingValue;
@@ -136,7 +137,7 @@ class OnPropertyCondition extends SpringBootCondition {
 			this.names = getNames(annotationAttributes);
 			this.matchIfMissing = annotationAttributes.getBoolean("matchIfMissing");
 		}
-
+		// 从 value 或者 name 属性种，获得值
 		private String[] getNames(Map<String, Object> annotationAttributes) {
 			String[] value = (String[]) annotationAttributes.get("value");
 			String[] name = (String[]) annotationAttributes.get("name");

@@ -35,12 +35,13 @@ import org.springframework.util.CollectionUtils;
  * {@link AutoConfigurationImportFilter}.
  *
  * @author Phillip Webb
+ * 作为具有 AutoConfigurationImportFilter 功能的 SpringBootCondition 的抽象基类
  */
 abstract class FilteringSpringBootCondition extends SpringBootCondition
 		implements AutoConfigurationImportFilter, BeanFactoryAware, BeanClassLoaderAware {
 	// 通过Spring Aware 机制，进行注入
 	private BeanFactory beanFactory;
-
+	// 通过Spring Aware 机制，进行注入
 	private ClassLoader beanClassLoader;
 
 	// 进行批量的匹配，并返回匹配结果，代码如下

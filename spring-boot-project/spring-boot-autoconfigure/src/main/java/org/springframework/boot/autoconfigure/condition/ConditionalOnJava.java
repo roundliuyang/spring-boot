@@ -33,6 +33,8 @@ import org.springframework.context.annotation.Conditional;
  * @author Phillip Webb
  * @author Andy Wilkinson
  * @since 1.1.0
+ *
+ * 基于java 版本作为判断条件
  */
 @Target({ ElementType.TYPE, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
