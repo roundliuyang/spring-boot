@@ -38,6 +38,7 @@ final class AutoConfigurationMetadataLoader {
 	private AutoConfigurationMetadataLoader() {
 	}
 
+	// 加载 AutoConfigurationMetadata
 	static AutoConfigurationMetadata loadMetadata(ClassLoader classLoader) {
 		return loadMetadata(classLoader, PATH);
 	}
@@ -45,6 +46,8 @@ final class AutoConfigurationMetadataLoader {
 	static AutoConfigurationMetadata loadMetadata(ClassLoader classLoader, String path) {
 		try {
 			// 获取数据存储于 Enumeration 中
+			// 获得 PATH 对应的 URL 们,获得 PATH 对应的 URL 们，而 PATH 就是 "META-INF/spring-autoconfigure-metadata.properties" 文件。
+			// 这样，我们就可以避免去 AutoConfiguration 类上，读取其 Condition 条件了，从而避免将不符合条件的 AutoConfiguration 类的字节码，加载到 JVM 中。那么，此时就会有一个疑问，"META-INF/spring-autoconfigure-metadata.properties" 是怎么来的呢？
 			Enumeration<URL> urls = (classLoader != null) ? classLoader.getResources(path)
 					: ClassLoader.getSystemResources(path);
 			Properties properties = new Properties();
@@ -52,6 +55,7 @@ final class AutoConfigurationMetadataLoader {
 			while (urls.hasMoreElements()) {
 				properties.putAll(PropertiesLoaderUtils.loadProperties(new UrlResource(urls.nextElement())));
 			}
+			// 将 properties 转换成 PropertiesAutoConfigurationMetadata 对象
 			return loadMetadata(properties);
 		}
 		catch (IOException ex) {
@@ -68,7 +72,9 @@ final class AutoConfigurationMetadataLoader {
 	 * {@link AutoConfigurationMetadata} implementation backed by a properties file.
 	 */
 	private static class PropertiesAutoConfigurationMetadata implements AutoConfigurationMetadata {
-
+		/**
+		 * Properties 对象
+		 */
 		private final Properties properties;
 
 		PropertiesAutoConfigurationMetadata(Properties properties) {

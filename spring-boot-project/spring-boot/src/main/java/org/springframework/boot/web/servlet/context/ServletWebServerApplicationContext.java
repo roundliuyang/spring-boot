@@ -290,8 +290,11 @@ public class ServletWebServerApplicationContext extends GenericWebApplicationCon
 	}
 
 	private void registerWebApplicationScopes() {
+		// 创建 ExistingWebApplicationScopes 对象
 		ExistingWebApplicationScopes existingScopes = new ExistingWebApplicationScopes(getBeanFactory());
+		// 注册 ExistingWebApplicationScopes 到 WebApplicationContext 中
 		WebApplicationContextUtils.registerWebApplicationScopes(getBeanFactory());
+		// 恢复
 		existingScopes.restore();
 	}
 
@@ -328,14 +331,14 @@ public class ServletWebServerApplicationContext extends GenericWebApplicationCon
 		}
 		servletContext.log("Initializing Spring embedded WebApplicationContext");
 		try {
-			// 设置当前 Spring 容器到 ServletContext 中
+			// 设置当前 Spring 容器到 ServletContext 中，通过此处，从 servletContext 的属性种，可以拿到其拥有的 Spring 容器。
 			servletContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, this);
 			// 打印日志
 			if (logger.isDebugEnabled()) {
 				logger.debug("Published root WebApplicationContext as ServletContext attribute with name ["
 						+ WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE + "]");
 			}
-			// 设置到 `servletContext` 属性中。
+			// 设置到 `servletContext` 属性中，通过此处，Spring 容器的 servletContext 属性，可以拿到 ServletContext 对象。
 			setServletContext(servletContext);
 			if (logger.isInfoEnabled()) {
 				long elapsedTime = System.currentTimeMillis() - getStartupDate();

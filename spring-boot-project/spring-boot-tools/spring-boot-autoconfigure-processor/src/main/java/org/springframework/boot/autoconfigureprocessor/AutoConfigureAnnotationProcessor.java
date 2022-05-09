@@ -50,6 +50,8 @@ import javax.tools.StandardLocation;
  * @author Madhura Bhave
  * @author Phillip Webb
  * @since 1.5.0
+ *
+ * 继承 AbstractProcessor 抽象类，根据 AutoConfiguration 类的条件，生成 "META-INF/spring-autoconfigure-metadata.properties" 文件
  */
 @SupportedAnnotationTypes({ "org.springframework.boot.autoconfigure.condition.ConditionalOnClass",
 		"org.springframework.boot.autoconfigure.condition.ConditionalOnBean",
@@ -62,16 +64,33 @@ public class AutoConfigureAnnotationProcessor extends AbstractProcessor {
 
 	protected static final String PROPERTIES_PATH = "META-INF/spring-autoconfigure-metadata.properties";
 
+	/**
+	 * 注解名和全类名的映射
+	 *
+	 * KEY：注解名
+	 * VALUE：全类名
+	 */
 	private final Map<String, String> annotations;
 
+	/**
+	 * 注解名和 ValueExtractor 的映射
+	 *
+	 * KEY：注解名
+	 */
 	private final Map<String, ValueExtractor> valueExtractors;
 
+	/**
+	 * 扫描和处理注解（Annotation），生成的 Properties 对象
+	 */
 	private final Properties properties = new Properties();
 
 	public AutoConfigureAnnotationProcessor() {
+		// <1> 初始化 annotations 属性
 		Map<String, String> annotations = new LinkedHashMap<>();
+		// 初始化
 		addAnnotations(annotations);
 		this.annotations = Collections.unmodifiableMap(annotations);
+		// <2> 初始化 valueExtractors 属性
 		Map<String, ValueExtractor> valueExtractors = new LinkedHashMap<>();
 		addValueExtractors(valueExtractors);
 		this.valueExtractors = Collections.unmodifiableMap(valueExtractors);
@@ -106,7 +125,9 @@ public class AutoConfigureAnnotationProcessor extends AbstractProcessor {
 
 	@Override
 	public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
+		// <1> 遍历 annotations 集合，逐个处理
 		for (Map.Entry<String, String> entry : this.annotations.entrySet()) {
+			// <2> 处理完成，写到文件 PROPERTIES_PATH 中
 			process(roundEnv, entry.getKey(), entry.getValue());
 		}
 		if (roundEnv.processingOver()) {
@@ -184,12 +205,13 @@ public class AutoConfigureAnnotationProcessor extends AbstractProcessor {
 			}
 		}
 	}
-
+	// 值提取器接口
 	@FunctionalInterface
 	private interface ValueExtractor {
-
+		// 从注解中，获得对应的值的数组
 		List<Object> getValues(AnnotationMirror annotation);
 
+		// 创建 NamedValuesExtractor 对象
 		static ValueExtractor allFrom(String... names) {
 			return new NamedValuesExtractor(names);
 		}
@@ -198,16 +220,24 @@ public class AutoConfigureAnnotationProcessor extends AbstractProcessor {
 
 	private abstract static class AbstractValueExtractor implements ValueExtractor {
 
+		/**
+		 * 提供了从 AnnotationValue 读取值的公用方法。
+		 * @param annotationValue
+		 * @return
+		 */
 		@SuppressWarnings("unchecked")
 		protected Stream<Object> extractValues(AnnotationValue annotationValue) {
+			// 注解值为空，返回空
 			if (annotationValue == null) {
 				return Stream.empty();
 			}
 			Object value = annotationValue.getValue();
+			// 注解值为数组，则遍历数组，逐个提取值
 			if (value instanceof List) {
 				return ((List<AnnotationValue>) value).stream()
 						.map((annotation) -> extractValue(annotation.getValue()));
 			}
+			// 注解值非数组，直接提取值
 			return Stream.of(extractValue(value));
 		}
 
@@ -220,6 +250,9 @@ public class AutoConfigureAnnotationProcessor extends AbstractProcessor {
 
 	}
 
+	/**
+	 * 读取 names 的 ValueExtractor 实现类
+	 */
 	private static class NamedValuesExtractor extends AbstractValueExtractor {
 
 		private final Set<String> names;
@@ -231,6 +264,7 @@ public class AutoConfigureAnnotationProcessor extends AbstractProcessor {
 		@Override
 		public List<Object> getValues(AnnotationMirror annotation) {
 			List<Object> result = new ArrayList<>();
+			// 遍历 names 数组，读取 name 对应的值，添加到 result 中
 			annotation.getElementValues().forEach((key, value) -> {
 				if (this.names.contains(key.getSimpleName().toString())) {
 					extractValues(value).forEach(result::add);
@@ -240,17 +274,20 @@ public class AutoConfigureAnnotationProcessor extends AbstractProcessor {
 		}
 
 	}
-
+	// 读取 @ConditionalOnBean 和 @ConditionalOnSingleCandidate 注解的 ValueExtractor 实现类
 	private static class OnBeanConditionValueExtractor extends AbstractValueExtractor {
 
 		@Override
 		public List<Object> getValues(AnnotationMirror annotation) {
+			// 遍历注解的元素们，读取到 attributes 中
 			Map<String, AnnotationValue> attributes = new LinkedHashMap<>();
 			annotation.getElementValues()
 					.forEach((key, value) -> attributes.put(key.getSimpleName().toString(), value));
+			// 如果 "name" 对应的值为空，返回空
 			if (attributes.containsKey("name")) {
 				return Collections.emptyList();
 			}
+			// 读取 "value"、`"type"` 对应的值，添加到 result 中
 			List<Object> result = new ArrayList<>();
 			extractValues(attributes.get("value")).forEach(result::add);
 			extractValues(attributes.get("type")).forEach(result::add);
@@ -267,7 +304,9 @@ public class AutoConfigureAnnotationProcessor extends AbstractProcessor {
 
 		@Override
 		public List<Object> getValues(AnnotationMirror annotation) {
+			// 读取 "value", "name" 的值
 			List<Object> values = super.getValues(annotation);
+			// 排序
 			values.sort(this::compare);
 			return values;
 		}

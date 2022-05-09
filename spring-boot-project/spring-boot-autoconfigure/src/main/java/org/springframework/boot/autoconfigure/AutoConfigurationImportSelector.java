@@ -512,13 +512,14 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector, 
 					.map((importClassName) -> new Entry(this.entries.get(importClassName), importClassName))
 					.collect(Collectors.toList());
 		}
-
+		// 加载自动配置类（AutoConfiguration）的元数据
 		private AutoConfigurationMetadata getAutoConfigurationMetadata() {
 			// autoConfigurationMetadata 属性，自动配置的元数据（Metadata）。
 			// getAutoConfigurationMetadata() 方法，会初始化该属性
 
 			// 不存在，进行加载
 			if (this.autoConfigurationMetadata == null) {
+				//加载 AutoConfigurationMetadata 对象。
 				this.autoConfigurationMetadata = AutoConfigurationMetadataLoader.loadMetadata(this.beanClassLoader);
 			}
 			// 存在，直接返回
