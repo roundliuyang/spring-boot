@@ -30,6 +30,8 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 /**
+ * ConfigurationPropertiesBeanRegistrar 是 EnableConfigurationPropertiesRegistrar 的辅助类
+ * 将 @EnableConfigurationProperties 注解指定的类，逐个注册成对应的 BeanDefinition 对象
  * Delegate used by {@link EnableConfigurationPropertiesRegistrar} and
  * {@link ConfigurationPropertiesScanRegistrar} to register a bean definition for a
  * {@link ConfigurationProperties @ConfigurationProperties} class.
@@ -49,14 +51,18 @@ final class ConfigurationPropertiesBeanRegistrar {
 	}
 
 	void register(Class<?> type) {
+		// <1> 先获取这个 Class 类对象的 `@ConfigurationProperties` 注解
 		MergedAnnotation<ConfigurationProperties> annotation = MergedAnnotations
 				.from(type, SearchStrategy.TYPE_HIERARCHY).get(ConfigurationProperties.class);
+		// <2> 为这个 Class 对象注册一个 BeanDefinition
 		register(type, annotation);
 	}
 
 	void register(Class<?> type, MergedAnnotation<ConfigurationProperties> annotation) {
+		// <1> 生成一个 Bean 的名称，为 `@ConfigurationProperties` 注解的 `${prefix}-类全面`，或者`类全名`
 		String name = getName(type, annotation);
 		if (!containsBeanDefinition(name)) {
+			// <2> 如果没有该名称的 Bean，则注册一个 `type` 类型的 BeanDefinition
 			registerBeanDefinition(name, type, annotation);
 		}
 	}
@@ -80,14 +86,18 @@ final class ConfigurationPropertiesBeanRegistrar {
 		}
 		return false;
 	}
-
+	// 注册带有 @ConfigurationProperties 注解的 Class 对象
 	private void registerBeanDefinition(String beanName, Class<?> type,
 			MergedAnnotation<ConfigurationProperties> annotation) {
+		// 这个 Class 对象必须有 `@ConfigurationProperties` 注解
 		Assert.state(annotation.isPresent(), () -> "No " + ConfigurationProperties.class.getSimpleName()
 				+ " annotation found on  '" + type.getName() + "'.");
+		// 注册一个 `beanClass` 为 `type` 的 GenericBeanDefinition
 		this.registry.registerBeanDefinition(beanName, createBeanDefinition(beanName, type));
 	}
 
+	//  创建一个 GenericBeanDefinition 对象，设置 Class 为 `type`
+	//  逻辑比较简单，就是将这个 @ConfigurationProperties 注解的class对象生成一个 BeanDefinition 并注册
 	private BeanDefinition createBeanDefinition(String beanName, Class<?> type) {
 		if (BindMethod.forType(type) == BindMethod.VALUE_OBJECT) {
 			return new ConfigurationPropertiesValueObjectBeanDefinition(this.beanFactory, beanName, type);

@@ -56,9 +56,14 @@ import org.springframework.validation.annotation.Validated;
  * @since 2.2.0
  * @see #getAll(ApplicationContext)
  * @see #get(ApplicationContext, Object, String)
+ *
+ * 是 @ConfigurationProperties 注解对应的 Bean 的封装，用于将对应的属性值绑定到这个 Bean 中
  */
 public final class ConfigurationPropertiesBean {
 
+	/**
+	 * Bean 的名称
+	 */
 	private final String name;
 
 	private final Object instance;

@@ -31,6 +31,7 @@ import org.springframework.core.env.PropertySources;
 import org.springframework.util.Assert;
 
 /**
+ * 将配置绑定到 @ConfigurationProperties 注解的配置类中
  * {@link BeanPostProcessor} to bind {@link PropertySources} to beans annotated with
  * {@link ConfigurationProperties @ConfigurationProperties}.
  *
@@ -57,10 +58,13 @@ public class ConfigurationPropertiesBindingPostProcessor
 	@Deprecated
 	public static final String VALIDATOR_BEAN_NAME = EnableConfigurationProperties.VALIDATOR_BEAN_NAME;
 
+	/** Spring 应用上下文 */
 	private ApplicationContext applicationContext;
 
+	/** BeanDefinition 注册中心 */
 	private BeanDefinitionRegistry registry;
 
+	/** 属性绑定器 */
 	private ConfigurationPropertiesBinder binder;
 
 	/**
@@ -73,38 +77,62 @@ public class ConfigurationPropertiesBindingPostProcessor
 	public ConfigurationPropertiesBindingPostProcessor() {
 	}
 
+	// ApplicationContextAware 的回调
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+		// Aware 接口回调，获取 Spring 应用上下文
 		this.applicationContext = applicationContext;
 	}
 
+	/**
+	 * InitializingBean 初始化方法
+	 * 初始化当前 Bean
+	 * @throws Exception
+	 */
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		// We can't use constructor injection of the application context because
 		// it causes eager factory bean initialization
+		// 从 Spring 应用上下文获取 BeanDefinition 注册中心
 		this.registry = (BeanDefinitionRegistry) this.applicationContext.getAutowireCapableBeanFactory();
+		// 获取 ConfigurationPropertiesBinder 这个 Bean，在这个类的 `register` 方法中注册了哦
 		this.binder = ConfigurationPropertiesBinder.get(this.applicationContext);
 	}
 
+	/**
+	 * PriorityOrdered 优先级
+	 * 次于最高优先级
+	 */
 	@Override
 	public int getOrder() {
 		return Ordered.HIGHEST_PRECEDENCE + 1;
 	}
 
+	/**
+	 * 在 Bean 的初始化前会调用这个方法
+	 */
 	@Override
 	public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+		// <1> 先尝试根据 Bean 解析出一个 ConfigurationPropertiesBean 对象，包含 `@ConfigurationProperties` 注解信息
+		// <2> 然后开始获取指定 `prefix` 前缀的属性值，设置到这个 Bean 中
 		bind(ConfigurationPropertiesBean.get(this.applicationContext, bean, beanName));
+		// <3> 返回属性填充后的 Bean
 		return bean;
 	}
 
 	private void bind(ConfigurationPropertiesBean bean) {
+		// <1> 如果这个 `bean` 为空，或者已经处理过，则直接返回
 		if (bean == null || hasBoundValueObject(bean.getName())) {
 			return;
 		}
+		// <2> 对 `@ConstructorBinding` 的校验，如果使用该注解但是没有找到合适的构造器，那么在这里抛出异常
 		Assert.state(bean.getBindMethod() == BindMethod.JAVA_BEAN, "Cannot bind @ConfigurationProperties for bean '"
 				+ bean.getName() + "'. Ensure that @ConstructorBinding has not been applied to regular bean");
 		try {
+			// <3> 通过 Binder 将指定 `prefix` 前缀的属性值设置到这个 Bean 中，会借助 Conversion 类型转换器进行类型转换，过程复杂，没看懂...
 			this.binder.bind(bean);
+
+			// 可以看到最后是通过 ConfigurationPropertiesBinder 属性绑定器来将属性绑定到 bean 中的
 		}
 		catch (Exception ex) {
 			throw new ConfigurationPropertiesBindException(bean, ex);
@@ -124,12 +152,14 @@ public class ConfigurationPropertiesBindingPostProcessor
 	 */
 	public static void register(BeanDefinitionRegistry registry) {
 		Assert.notNull(registry, "Registry must not be null");
+		// 注册 ConfigurationPropertiesBindingPostProcessor 类型的 BeanDefinition（内部角色）
 		if (!registry.containsBeanDefinition(BEAN_NAME)) {
 			GenericBeanDefinition definition = new GenericBeanDefinition();
 			definition.setBeanClass(ConfigurationPropertiesBindingPostProcessor.class);
 			definition.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
 			registry.registerBeanDefinition(BEAN_NAME, definition);
 		}
+		// 注册 ConfigurationPropertiesBinder 和 ConfigurationPropertiesBinder.Factory 两个 BeanDefinition（内部角色）
 		ConfigurationPropertiesBinder.register(registry);
 	}
 

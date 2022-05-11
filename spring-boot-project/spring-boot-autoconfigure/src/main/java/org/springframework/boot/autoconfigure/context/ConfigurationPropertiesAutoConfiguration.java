@@ -22,6 +22,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Configuration;
 
 /**
+ * 默认情况下，@EnableConfigurationProperties 会通过 org.springframework.boot.autoconfigure.context.ConfigurationPropertiesAutoConfiguration 类，进行开启。
  * {@link EnableAutoConfiguration Auto-configuration} for
  * {@link ConfigurationProperties @ConfigurationProperties} beans. Automatically binds and
  * validates any bean annotated with {@code @ConfigurationProperties}.

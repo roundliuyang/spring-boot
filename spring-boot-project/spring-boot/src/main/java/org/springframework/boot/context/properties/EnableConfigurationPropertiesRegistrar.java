@@ -35,8 +35,12 @@ class EnableConfigurationPropertiesRegistrar implements ImportBeanDefinitionRegi
 
 	@Override
 	public void registerBeanDefinitions(AnnotationMetadata metadata, BeanDefinitionRegistry registry) {
+		// <1> 先注册两个内部 Bean
 		registerInfrastructureBeans(registry);
+		// <2> 创建一个 ConfigurationPropertiesBeanRegistrar 对象
 		ConfigurationPropertiesBeanRegistrar beanRegistrar = new ConfigurationPropertiesBeanRegistrar(registry);
+		// <3> 获取 `@EnableConfigurationProperties` 注解指定的 Class 类对象们
+		// 这样一来这个 Class 不用标注 `@Component` 就可以注入这个配置属性对象了
 		getTypes(metadata).forEach(beanRegistrar::register);
 	}
 
@@ -46,9 +50,17 @@ class EnableConfigurationPropertiesRegistrar implements ImportBeanDefinitionRegi
 				.filter((type) -> void.class != type).collect(Collectors.toSet());
 	}
 
+	/**
+	 * 可参考 ConfigurationPropertiesAutoConfiguration 自动配置类
+	 * @param registry
+	 */
 	@SuppressWarnings("deprecation")
 	static void registerInfrastructureBeans(BeanDefinitionRegistry registry) {
+		// 注册一个 ConfigurationPropertiesBindingPostProcessor 类型的 BeanDefinition（内部角色），如果不存在的话
+		// 同时也会注册 ConfigurationPropertiesBinder 和 ConfigurationPropertiesBinder.Factory 两个 Bean，如果不存在的话
 		ConfigurationPropertiesBindingPostProcessor.register(registry);
+		// 注册一个 ConfigurationBeanFactoryMetadata 类型的 BeanDefinition（内部角色）
+		// 这个 Bean 从 Spring 2.2.0 开始就被废弃了
 		ConfigurationBeanFactoryMetadata.register(registry);
 	}
 
