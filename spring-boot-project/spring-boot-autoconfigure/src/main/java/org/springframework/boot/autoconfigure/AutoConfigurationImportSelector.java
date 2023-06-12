@@ -142,7 +142,7 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector, 
 		return new AutoConfigurationEntry(configurations, exclusions);
 	}
 
-	@Override
+	@Override      // 实现自 DeferredImportSelector 接口
 	public Class<? extends Group> getImportGroup() {
 		return AutoConfigurationGroup.class;
 	}
@@ -423,7 +423,8 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector, 
 		return Ordered.LOWEST_PRECEDENCE - 1;
 	}
 
-	// AutoConfigurationGroup ，是 AutoConfigurationImportSelector 的内部类，实现 DeferredImportSelector.Group、BeanClassLoaderAware、BeanFactoryAware、ResourceLoaderAware 接口，自动配置的 Group 实现类。
+	// AutoConfigurationGroup ，是 AutoConfigurationImportSelector 的内部类，实现 DeferredImportSelector.Group、BeanClassLoaderAware、
+	// BeanFactoryAware、ResourceLoaderAware 接口，自动配置的 Group 实现类。
 	private static class AutoConfigurationGroup
 			implements DeferredImportSelector.Group, BeanClassLoaderAware, BeanFactoryAware, ResourceLoaderAware {
 
@@ -477,7 +478,7 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector, 
 					() -> String.format("Only %s implementations are supported, got %s",
 							AutoConfigurationImportSelector.class.getSimpleName(),
 							deferredImportSelector.getClass().getName()));
-			// <1> 获得 AutoConfigurationEntry 对象
+			// <1> 获得 AutoConfigurationEntry 对象 ，就两个字段而已
 			AutoConfigurationEntry autoConfigurationEntry = ((AutoConfigurationImportSelector) deferredImportSelector)
 					.getAutoConfigurationEntry(getAutoConfigurationMetadata(), annotationMetadata);
 			// <2> 添加到 autoConfigurationEntries 中
@@ -507,7 +508,7 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector, 
 					.collect(Collectors.toCollection(LinkedHashSet::new));
 			// <2.3> 从 processedConfigurations 中，移除排除的
 			processedConfigurations.removeAll(allExclusions);
-			// <3> 处理，返回结果
+			// <3> 处理，返回结果。 sortAutoConfigurations() 方法，排序
 			return sortAutoConfigurations(processedConfigurations, getAutoConfigurationMetadata()).stream()
 					.map((importClassName) -> new Entry(this.entries.get(importClassName), importClassName))
 					.collect(Collectors.toList());

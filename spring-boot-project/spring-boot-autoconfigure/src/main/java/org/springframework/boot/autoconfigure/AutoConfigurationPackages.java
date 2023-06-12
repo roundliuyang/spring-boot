@@ -156,6 +156,9 @@ public abstract class AutoConfigurationPackages {
 	 */
 	private static final class PackageImport {
 
+		/**
+		 * 包名
+		 */
 		private final String packageName;
 
 		PackageImport(AnnotationMetadata metadata) {

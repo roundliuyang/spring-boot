@@ -160,6 +160,7 @@ public class ServletWebServerApplicationContext extends GenericWebApplicationCon
 	}
 
 	/**
+	 * SpringApplication 启动时，会调用到该方法
 	 * 重写refresh方法，初始化Spring容器
 	 * 主要是如果发生异常，则调用 #stopAndReleaseWebServer() 方法，停止 WebServer
 	 */
