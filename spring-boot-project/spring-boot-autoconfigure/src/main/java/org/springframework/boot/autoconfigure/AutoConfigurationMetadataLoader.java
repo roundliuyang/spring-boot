@@ -27,6 +27,7 @@ import org.springframework.core.io.support.PropertiesLoaderUtils;
 import org.springframework.util.StringUtils;
 
 /**
+ * AutoConfigurationMetadata 加载器
  * Internal utility used to load {@link AutoConfigurationMetadata}.
  *
  * @author Phillip Webb
@@ -46,8 +47,9 @@ final class AutoConfigurationMetadataLoader {
 	static AutoConfigurationMetadata loadMetadata(ClassLoader classLoader, String path) {
 		try {
 			// 获取数据存储于 Enumeration 中
-			// 获得 PATH 对应的 URL 们,获得 PATH 对应的 URL 们，而 PATH 就是 "META-INF/spring-autoconfigure-metadata.properties" 文件。
-			// 这样，我们就可以避免去 AutoConfiguration 类上，读取其 Condition 条件了，从而避免将不符合条件的 AutoConfiguration 类的字节码，加载到 JVM 中。那么，此时就会有一个疑问，"META-INF/spring-autoconfigure-metadata.properties" 是怎么来的呢？
+			// 获得 PATH 对应的 URL 们，而 PATH 就是 "META-INF/spring-autoconfigure-metadata.properties" 文件。
+			// 这样，我们就可以避免去 AutoConfiguration 类上，读取其 Condition 条件了，从而避免将不符合条件的 AutoConfiguration 类的字节码，加载到 JVM 中。
+			// 那么，此时就会有一个疑问，"META-INF/spring-autoconfigure-metadata.properties" 是怎么来的呢？
 			Enumeration<URL> urls = (classLoader != null) ? classLoader.getResources(path)
 					: ClassLoader.getSystemResources(path);
 			Properties properties = new Properties();
@@ -69,6 +71,7 @@ final class AutoConfigurationMetadataLoader {
 	}
 
 	/**
+	 * 是 AutoConfigurationMetadataLoader 的内部静态类，实现 AutoConfigurationMetadata 接口
 	 * {@link AutoConfigurationMetadata} implementation backed by a properties file.
 	 */
 	private static class PropertiesAutoConfigurationMetadata implements AutoConfigurationMetadata {

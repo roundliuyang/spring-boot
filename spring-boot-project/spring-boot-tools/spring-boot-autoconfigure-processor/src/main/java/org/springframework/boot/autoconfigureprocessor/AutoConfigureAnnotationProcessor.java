@@ -97,12 +97,15 @@ public class AutoConfigureAnnotationProcessor extends AbstractProcessor {
 	}
 
 	protected void addAnnotations(Map<String, String> annotations) {
+		// 条件
 		annotations.put("ConditionalOnClass", "org.springframework.boot.autoconfigure.condition.ConditionalOnClass");
 		annotations.put("ConditionalOnBean", "org.springframework.boot.autoconfigure.condition.ConditionalOnBean");
 		annotations.put("ConditionalOnSingleCandidate",
 				"org.springframework.boot.autoconfigure.condition.ConditionalOnSingleCandidate");
 		annotations.put("ConditionalOnWebApplication",
 				"org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication");
+
+		// 排序
 		annotations.put("AutoConfigureBefore", "org.springframework.boot.autoconfigure.AutoConfigureBefore");
 		annotations.put("AutoConfigureAfter", "org.springframework.boot.autoconfigure.AutoConfigureAfter");
 		annotations.put("AutoConfigureOrder", "org.springframework.boot.autoconfigure.AutoConfigureOrder");
@@ -208,10 +211,18 @@ public class AutoConfigureAnnotationProcessor extends AbstractProcessor {
 	// 值提取器接口
 	@FunctionalInterface
 	private interface ValueExtractor {
-		// 从注解中，获得对应的值的数组
+		/**
+		 * 从注解中，获得对应的值的数组
+		 * @param annotation 注解
+		 * @return 值的数组
+		 */
 		List<Object> getValues(AnnotationMirror annotation);
 
-		// 创建 NamedValuesExtractor 对象
+		/**
+		 * 创建 NamedValuesExtractor 对象
+		 * @param names 从注解的指定 names 中，提取值们
+		 * @return NamedValuesExtractor 对象
+		 */
 		static ValueExtractor allFrom(String... names) {
 			return new NamedValuesExtractor(names);
 		}
