@@ -22,6 +22,9 @@ import org.springframework.context.EnvironmentAware;
 import org.springframework.context.ResourceLoaderAware;
 
 /**
+ * 用于过滤掉无需自动引入的自动配置类（Configuration）。
+ * 因为自动配置类可能会很多，如果无需使用，而将字节码读取到内存中，这个是一种浪费
+ *
  * Filter that can be registered in {@code spring.factories} to limit the
  * auto-configuration classes considered. This interface is designed to allow fast removal
  * of auto-configuration classes before their bytecode is even read.
@@ -55,9 +58,10 @@ public interface AutoConfigurationImportFilter {
 	 * not be imported.
 	 *
 	 *
-	 * 将传入的 autoConfigurationClasses 配置雷门，根据 autoConfigurationMetadata 的元数据（主要是注解信息）
-	 * 进行匹配，判断是否需要引入，然后返回 boolean 结果。
-	 * 并且，boolean[] 结果 和autoConfigurationClasses 配置类是一一对应的关系。假设autoConfigurationClasses[0] 对应的 boolean[0] 为 false ，表示无需引入，反之则需要引入。
+	 * 将传入的 autoConfigurationClasses 配置类们，根据 autoConfigurationMetadata 的元数据（主要是注解信息）
+	 * 进行匹配，判断是否需要引入，然后返回 boolean[] 结果。
+	 * 并且，boolean[] 结果 和autoConfigurationClasses 配置类是一一对应的关系。
+	 * 假设autoConfigurationClasses[0] 对应的 boolean[0] 为 false ，表示无需引入，反之则需要引入。
 	 */
 	boolean[] match(String[] autoConfigurationClasses, AutoConfigurationMetadata autoConfigurationMetadata);
 

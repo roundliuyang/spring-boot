@@ -36,6 +36,7 @@ import org.springframework.util.CollectionUtils;
  *
  * @author Phillip Webb
  * 作为具有 AutoConfigurationImportFilter 功能的 SpringBootCondition 的抽象基类
+ * 注意，上面特意加黑的“具有 AutoConfigurationImportFilter 功能”。
  */
 abstract class FilteringSpringBootCondition extends SpringBootCondition
 		implements AutoConfigurationImportFilter, BeanFactoryAware, BeanClassLoaderAware {
@@ -44,8 +45,12 @@ abstract class FilteringSpringBootCondition extends SpringBootCondition
 	// 通过Spring Aware 机制，进行注入
 	private ClassLoader beanClassLoader;
 
-	// 进行批量的匹配，并返回匹配结果，代码如下
-	@Override
+	/**
+	 * 进行批量的匹配，并返回匹配结果
+	 * 从实现上，这个方法和 SpringBootCondition#match(ConditionContext context, AnnotatedTypeMetadata metadata) 方法，
+	 * 基本是一致的。或者说，是它的批量版本。
+	 */
+	@Override        // 来自 AutoConfigurationImportFilter 接口
 	public boolean[] match(String[] autoConfigurationClasses, AutoConfigurationMetadata autoConfigurationMetadata) {
 		// 获得 ConditionEvaluationReport 对象
 		ConditionEvaluationReport report = ConditionEvaluationReport.find(this.beanFactory);

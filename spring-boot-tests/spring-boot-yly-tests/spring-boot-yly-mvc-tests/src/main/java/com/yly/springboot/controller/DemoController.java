@@ -15,8 +15,8 @@ public class DemoController {
 	@Resource
 	private PredisConfigurationProperties predisConfigurationProperties;
 
-	@Resource
-	private Hello2 hello2;
+//	@Resource
+//	private Hello2 hello2;
 
 	@ResponseBody
 	@RequestMapping("/hello")
@@ -33,14 +33,14 @@ public class DemoController {
 		return predisConfigurationProperties.toString();
 	}
 
-	/**
-	 * 测试 @ConditionalOnProperty 注解
-	 * 如果 mf.assert 值为 false , @Resource 注入失败，项目启动失败
-	 */
-	@ResponseBody
-	@RequestMapping("/conditionalOnProperty")
-	public String conditionalOnProperty() {
-		return hello2.toString();
-	}
+//	/**
+//	 * 测试 @ConditionalOnProperty 注解
+//	 * 如果 mf.assert 值为 false , @Resource 注入失败，项目启动失败
+//	 */
+//	@ResponseBody
+//	@RequestMapping("/conditionalOnProperty")
+//	public String conditionalOnProperty() {
+//		return hello2.toString();
+//	}
 
 }
