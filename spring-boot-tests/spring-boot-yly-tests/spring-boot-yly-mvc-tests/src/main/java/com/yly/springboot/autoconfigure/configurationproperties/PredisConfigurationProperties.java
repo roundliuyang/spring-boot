@@ -1,10 +1,10 @@
-package com.yly.springboot.autoconfigure;
+package com.yly.springboot.autoconfigure.configurationproperties;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
 @ConfigurationProperties("mycooltv.predis")
-//@Configuration
+// @Configuration
 public class PredisConfigurationProperties {
 
 	/**

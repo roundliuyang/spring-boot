@@ -1,5 +1,6 @@
-package com.yly.springboot.autoconfigure;
+package com.yly.springboot.autoconfigure.configurationproperties;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,8 +13,9 @@ import org.springframework.context.annotation.Primary;
 public class PredisAutoConfiguration {
 
     @Bean
+	@ConditionalOnMissingBean
     @Primary
-    public Hello jobExecutor() {
+    public Hello hello() {
         return new Hello("张三三");
     }
 }

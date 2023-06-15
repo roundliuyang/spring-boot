@@ -46,6 +46,9 @@ import org.springframework.util.StringUtils;
 @Order(Ordered.HIGHEST_PRECEDENCE + 40)
 class OnPropertyCondition extends SpringBootCondition {
 
+	/**
+	 * 获得匹配结果
+	 */
 	@Override
 	public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata) {
 		// 获得@ConditionalOnProperty 注解的属性
@@ -110,6 +113,7 @@ class OnPropertyCondition extends SpringBootCondition {
 					.found("different value in property", "different value in properties")
 					.items(Style.QUOTE, nonMatchingProperties));
 		}
+		// 返回匹配
 		return ConditionOutcome
 				.match(ConditionMessage.forCondition(ConditionalOnProperty.class, spec).because("matched"));
 	}

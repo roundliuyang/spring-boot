@@ -29,6 +29,8 @@ import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 
 /**
+ * 是 Spring Boot 实现 Condition 的抽象类，且是Spring Boot所有 Condition 实现类的基类，
+ * 主要用于提供相应的日志，帮助开发者判断哪些被进行加载。
  * Base of all {@link Condition} implementations used with Spring Boot. Provides sensible
  * logging to help the user diagnose what classes are loaded.
  *
@@ -88,6 +90,9 @@ public abstract class SpringBootCondition implements Condition {
 		return methodMetadata.getDeclaringClassName() + "#" + methodMetadata.getMethodName();
 	}
 
+	/**
+	 * 打印结果日志
+	 */
 	protected final void logOutcome(String classOrMethodName, ConditionOutcome outcome) {
 		if (this.logger.isTraceEnabled()) {
 			this.logger.trace(getLogMessage(classOrMethodName, outcome));
@@ -116,6 +121,7 @@ public abstract class SpringBootCondition implements Condition {
 	}
 
 	/**
+	 * 抽象方法，执行匹配，返回匹配结果。这是一个抽象方法，由子类进行实现
 	 * Determine the outcome of the match along with suitable log output.
 	 * @param context the condition context
 	 * @param metadata the annotation metadata
@@ -124,12 +130,12 @@ public abstract class SpringBootCondition implements Condition {
 	public abstract ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata);
 
 	/**
+	 * 判断是否匹配指定的 Condition 们中的任一一个
 	 * Return true if any of the specified conditions match.
 	 * @param context the context
 	 * @param metadata the annotation meta-data
 	 * @param conditions conditions to test
 	 * @return {@code true} if any condition matches.
-	 * 判断是否匹配指定的 Condition 们中的任一一个
 	 */
 	protected final boolean anyMatches(ConditionContext context, AnnotatedTypeMetadata metadata,
 			Condition... conditions) {
