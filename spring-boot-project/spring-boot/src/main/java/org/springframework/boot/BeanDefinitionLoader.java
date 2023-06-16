@@ -48,6 +48,7 @@ import org.springframework.util.StringUtils;
 
 /**
  * BeanDefinition 加载器（Loader），负责 Spring Boot 中，读取 BeanDefinition
+ *
  * Loads bean definitions from underlying sources, including XML and JavaConfig. Acts as a
  * simple facade over {@link AnnotatedBeanDefinitionReader},
  * {@link XmlBeanDefinitionReader} and {@link ClassPathBeanDefinitionScanner}. See
@@ -85,6 +86,7 @@ class BeanDefinitionLoader {
 	BeanDefinitionLoader(BeanDefinitionRegistry registry, Object... sources) {
 		Assert.notNull(registry, "Registry must not be null");
 		Assert.notEmpty(sources, "Sources must not be empty");
+		// 设置 sources 属性。它来自方法参数 Object... sources ，来自 SpringApplication#getAllSources() 方法
 		this.sources = sources;
 		// 创建 AnnotatedBeanDefinitionReader 对象
 		this.annotatedReader = new AnnotatedBeanDefinitionReader(registry);
@@ -186,6 +188,9 @@ class BeanDefinitionLoader {
 		return after - before;
 	}
 
+	/**
+	 * 使用 XmlBeanDefinitionReader 执行加载
+	 */
 	private int load(Resource source) {
 		// Groovy 相关，暂时忽略
 		if (source.getFilename().endsWith(".groovy")) {
@@ -198,9 +203,13 @@ class BeanDefinitionLoader {
 		return this.xmlReader.loadBeanDefinitions(source);
 	}
 
+	/**
+	 * 使用 ClassPathBeanDefinitionScanner 执行加载
+	 */
 	private int load(Package source) {
 		return this.scanner.scan(source.getName());
 	}
+
 	// 按照 source 是 Class > Resource > Package 的顺序，尝试加载。
 	private int load(CharSequence source) {
 		// <1> 解析 source 。因为，有可能里面带有占位符。
@@ -299,9 +308,14 @@ class BeanDefinitionLoader {
 		return Package.getPackage(source.toString());
 	}
 
+	/**
+	 * 调用 #isComponent(Class<?> type) 方法，判断是否为 Component
+	 */
 	private boolean isComponent(Class<?> type) {
 		// This has to be a bit of a guess. The only way to be sure that this type is
 		// eligible is to make a bean definition out of it and try to instantiate it.
+		// 如果有 @Component 注解，则 返回 true。 因为 Configuration 类，上面有 @Configuration 注解，而 @Configuration 上，自带
+		// @Component 注解，所以该方法返回 true
 		if (MergedAnnotations.from(type, SearchStrategy.TYPE_HIERARCHY).isPresent(Component.class)) {
 			return true;
 		}
@@ -312,6 +326,9 @@ class BeanDefinitionLoader {
 	}
 
 	/**
+	 * BeanDefinitionLoader 的内部静态类，继承 AbstractTypeHierarchyTraversingFilter 抽象类,
+	 * 用于排除对 sources 的扫描，如果不排除，则会出现重复读取 BeanDefinition 的情况
+	 *
 	 * Simple {@link TypeFilter} used to ensure that specified {@link Class} sources are
 	 * not accidentally re-added during scanning.
 	 */

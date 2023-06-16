@@ -1252,6 +1252,7 @@ public class SpringApplication {
 
 	/**
 	 * 默认情况下，返回的结果是 Spring#run(Class<?> primarySource, String... args) 方法的 Class<?> primarySource 的方法参数。例如说：MVCApplication 。
+	 *
 	 * Return an immutable set of all the sources that will be added to an
 	 * ApplicationContext when {@link #run(String...)} is called. This method combines any
 	 * primary sources specified in the constructor with any additional ones that have
