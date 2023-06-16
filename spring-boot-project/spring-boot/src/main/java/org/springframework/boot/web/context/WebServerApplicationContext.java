@@ -21,6 +21,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.util.ObjectUtils;
 
 /**
+ * 继承 ApplicationContext 接口，WebServer ApplicationContext 接口
  * Interface to be implemented by {@link ApplicationContext application contexts} that
  * create and manage the lifecycle of an embedded {@link WebServer}.
  *
@@ -30,10 +31,11 @@ import org.springframework.util.ObjectUtils;
 public interface WebServerApplicationContext extends ApplicationContext {
 
 	/**
+	 * 可以获得 WebServer 的方法，获得它，可以各种 WebServer 的管理
+	 *
 	 * Returns the {@link WebServer} that was created by the context or {@code null} if
 	 * the server has not yet been created.
 	 * @return the web server
-	 * 可以获得 WebServer 的方法，获得它，可以各种 WebServer 的管理
 	 */
 	WebServer getWebServer();
 

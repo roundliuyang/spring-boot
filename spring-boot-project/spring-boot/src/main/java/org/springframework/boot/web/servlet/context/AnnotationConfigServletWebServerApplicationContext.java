@@ -53,10 +53,10 @@ import org.springframework.util.ClassUtils;
  * @see ServletWebServerApplicationContext
  * @see AnnotationConfigServletWebApplicationContext
  */
-//  继承 ServletWebServerApplicationContext 类，实现 AnnotationConfigRegistry 接口，进一步提供了两个功能：
+// 继承 ServletWebServerApplicationContext 类，实现 AnnotationConfigRegistry 接口，进一步提供了两个功能：
 // 不过一般情况下，我们用不到这两个功能。简单看了下，更多的是单元测试，需要使用到这两个功能。
 // 从指定的 basePackages 包中，扫描 BeanDefinition 们。
-//从指定的 annotatedClasses 注解的配置类（Configuration）中，读取 BeanDefinition 们。
+// 从指定的 annotatedClasses 注解的配置类（Configuration）中，读取 BeanDefinition 们。
 public class AnnotationConfigServletWebServerApplicationContext extends ServletWebServerApplicationContext
 		implements AnnotationConfigRegistry {
 

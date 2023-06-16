@@ -41,12 +41,13 @@ public class WebApplicationContextServletContextAwareProcessor extends ServletCo
 		this.webApplicationContext = webApplicationContext;
 	}
 
+	// 这样，就可以从 webApplicationContext 中，获得 ServletContext 和 ServletConfig 属性。
 	@Override
 	protected ServletContext getServletContext() {
 		ServletContext servletContext = this.webApplicationContext.getServletContext();
 		return (servletContext != null) ? servletContext : super.getServletContext();
 	}
-
+    // 这样，就可以从 webApplicationContext 中，获得 ServletContext 和 ServletConfig 属性。
 	@Override
 	protected ServletConfig getServletConfig() {
 		ServletConfig servletConfig = this.webApplicationContext.getServletConfig();

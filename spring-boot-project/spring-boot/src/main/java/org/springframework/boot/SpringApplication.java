@@ -680,7 +680,7 @@ public class SpringApplication {
 	 * @see #setApplicationContextClass(Class)
 	 */
 	protected ConfigurableApplicationContext createApplicationContext() {
-		// 首先获取容器的类变量
+		//  根据 webApplicationType 类型，获得 ApplicationContext 类型
 		Class<?> contextClass = this.applicationContextClass;
 		// 如果为 null ,则根据 web 应用类型按照默认类进行构建
 		if (contextClass == null) {

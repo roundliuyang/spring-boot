@@ -92,10 +92,9 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
  */
 
 /**
- * org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext ，
- * 实现 ConfigurableWebServerApplicationContext 接口，继承 GenericWebApplicationContext 类，Spring Boot 使用 Servlet Web 服务器的 ApplicationContext 实现类。
- *
- * 实现 ConfigurableWebServerApplicationContext 接口后，可以获得管理WebServer 的能力
+ * 实现 ConfigurableWebServerApplicationContext 接口，继承 GenericWebApplicationContext 类，
+ * Spring Boot 使用 Servlet Web 服务器的 ApplicationContext 实现类。
+ * 实现 ConfigurableWebServerApplicationContext 接口后，可以获得管理 WebServer 的能力
  */
 
 public class ServletWebServerApplicationContext extends GenericWebApplicationContext
@@ -148,13 +147,14 @@ public class ServletWebServerApplicationContext extends GenericWebApplicationCon
 	@Override
 	protected void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) {
 		// 注册 WebApplicationContextServletContextAwareProcessor,
-		// WebApplicationContextServletContextAwareProcessor 的作用主要是处理实现ServletContextAware 接口的Bean,在这个处理类，在这个处理类，
+		// WebApplicationContextServletContextAwareProcessor 的作用主要是处理实现ServletContextAware 接口的Bean,在这个处理类，
 		// 初始化这个 Bean 中的 ServletContext 属性，这样在实现 ServletContextAware 接口的 Bean 中就可以拿到 ServletContext 对象了，
-		// Spring 中 Aware 接口就是这样实现的。这样，就可以从 webApplicationContext 中，获得 ServletContext 和 ServletConfig 属性。
+		// Spring 中 Aware 接口就是这样实现的。
 		beanFactory.addBeanPostProcessor(new WebApplicationContextServletContextAwareProcessor(this));
-		// 忽略 ServletContextAware 接口。
+
 		// 忽略 ServletContextAware 接口，因为实现 ServletContextAware 接口的 Bean 在 <1.1> 中的 WebApplicationContextServletContextAwareProcessor 中已经处理了。
 		beanFactory.ignoreDependencyInterface(ServletContextAware.class);
+
 		// 注册 ExistingWebApplicationScopes
 		registerWebApplicationScopes();
 	}
@@ -284,6 +284,7 @@ public class ServletWebServerApplicationContext extends GenericWebApplicationCon
 	}
 
 	private void registerApplicationScope(ServletContext servletContext) {
+		// 创建 ExistingWebApplicationScopes 对象
 		ServletContextScope appScope = new ServletContextScope(servletContext);
 		getBeanFactory().registerScope(WebApplicationContext.SCOPE_APPLICATION, appScope);
 		// Register as ServletContext attribute, for ContextCleanupListener to detect it.
