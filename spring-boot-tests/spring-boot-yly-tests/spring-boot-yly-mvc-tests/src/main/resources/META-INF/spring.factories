@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-com.yly.springboot.autoconfigure.configurationproperties.PredisAutoConfiguration
+com.yly.springboot.source.configurationproperties.PredisAutoConfiguration

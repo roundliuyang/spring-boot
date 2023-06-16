@@ -1,4 +1,4 @@
-package com.yly.springboot.autoconfigure.conditionalonproperty;
+package com.yly.springboot.source.conditionalonproperty;
 
 public class Hello2 {
 	public String name;

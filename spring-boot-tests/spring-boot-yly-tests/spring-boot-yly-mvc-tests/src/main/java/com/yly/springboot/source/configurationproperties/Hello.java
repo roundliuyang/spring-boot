@@ -1,4 +1,4 @@
-package com.yly.springboot.autoconfigure.configurationproperties;
+package com.yly.springboot.source.configurationproperties;
 
 public class Hello {
 	public String name;

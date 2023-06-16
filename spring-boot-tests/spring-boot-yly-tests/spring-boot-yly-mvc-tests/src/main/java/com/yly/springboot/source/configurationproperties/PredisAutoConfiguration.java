@@ -1,4 +1,4 @@
-package com.yly.springboot.autoconfigure.configurationproperties;
+package com.yly.springboot.source.configurationproperties;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;

@@ -1,4 +1,4 @@
-package com.yly.springboot.autoconfigure.conditionalonproperty;
+package com.yly.springboot.source.conditionalonproperty;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;

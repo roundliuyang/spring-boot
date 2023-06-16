@@ -1,7 +1,6 @@
 package com.yly.springboot.controller;
 
-import com.yly.springboot.autoconfigure.configurationproperties.PredisConfigurationProperties;
-import com.yly.springboot.autoconfigure.conditionalonproperty.Hello2;
+import com.yly.springboot.source.configurationproperties.PredisConfigurationProperties;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
