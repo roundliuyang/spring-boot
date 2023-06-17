@@ -242,6 +242,9 @@ public class SpringApplication {
 	 */
 	private Map<String, Object> defaultProperties;
 
+	/**
+	 * 附加的 profiles 的数组
+	 */
 	private Set<String> additionalProfiles = new HashSet<>();
 
 	private boolean allowBeanDefinitionOverriding;
@@ -580,6 +583,7 @@ public class SpringApplication {
 	/**
 	 * configurePropertySources 方法对 PropertySources 进行配置
 	 * 代码可以看出，可以根据配置的 defaultProperties、或者JVM启动参数，作为附加PropertySource 属性源
+	 *
 	 * Add, remove or re-order any {@link PropertySource}s in this application's
 	 * environment.
 	 * @param environment this application's environment
@@ -615,7 +619,8 @@ public class SpringApplication {
 	}
 
 	/**
-	 * 下面的代码主要用来处理应用环境中那些被配置文件处于激活状态或默认激活状态。对应事务配置正式我们经常使用的用来区分不同环境的spring.profiles.active 参数指定的值。
+	 * 下面的代码主要用来处理应用环境中那些被配置文件处于激活状态或默认激活状态。
+	 * 对应事务配置正式我们经常使用的用来区分不同环境的spring.profiles.active 参数指定的值。
 	 *
 	 * Configure which profiles are active (or active by default) for this application
 	 * environment. Additional profiles may be activated during configuration file

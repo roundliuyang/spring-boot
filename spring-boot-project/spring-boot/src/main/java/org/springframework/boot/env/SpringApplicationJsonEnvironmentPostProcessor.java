@@ -43,6 +43,9 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.context.support.StandardServletEnvironment;
 
 /**
+ * 解析 environment 中的 spring.application.json 或 SPRING_APPLICATION_JSON 对应的 JSON 格式的属性值，
+ * 创建新的 PropertySource 对象，添加到其中
+ *
  * An {@link EnvironmentPostProcessor} that parses JSON from
  * {@code spring.application.json} or equivalently {@code SPRING_APPLICATION_JSON} and
  * adds it as a map property source to the {@link Environment}. The new properties are
@@ -79,6 +82,9 @@ public class SpringApplicationJsonEnvironmentPostProcessor implements Environmen
 	 */
 	public static final int DEFAULT_ORDER = Ordered.HIGHEST_PRECEDENCE + 5;
 
+	/**
+	 * 顺序
+	 */
 	private int order = DEFAULT_ORDER;
 
 	@Override
@@ -98,8 +104,10 @@ public class SpringApplicationJsonEnvironmentPostProcessor implements Environmen
 	}
 
 	private void processJson(ConfigurableEnvironment environment, JsonPropertyValue propertyValue) {
+		//  解析 json 字符串，成 Map 对象
 		JsonParser parser = JsonParserFactory.getJsonParser();
 		Map<String, Object> map = parser.parseMap(propertyValue.getJson());
+		//  创建 JsonPropertySource 对象，添加到 environment 中
 		if (!map.isEmpty()) {
 			addJsonPropertySource(environment, new JsonPropertySource(propertyValue, flatten(map)));
 		}
@@ -211,9 +219,12 @@ public class SpringApplicationJsonEnvironmentPostProcessor implements Environmen
 		}
 
 		static JsonPropertyValue get(PropertySource<?> propertySource) {
+			// 遍历 CANDIDATES 数组
 			for (String candidate : CANDIDATES) {
+				// 获得 candidate 对应的属性值
 				Object value = propertySource.getProperty(candidate);
 				if (value instanceof String && StringUtils.hasLength((String) value)) {
+					// 创建 JsonPropertyValue 对象，然后返回
 					return new JsonPropertyValue(propertySource, candidate, (String) value);
 				}
 			}

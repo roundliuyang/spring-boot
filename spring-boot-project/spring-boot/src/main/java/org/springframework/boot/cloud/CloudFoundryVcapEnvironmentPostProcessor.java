@@ -39,6 +39,8 @@ import org.springframework.core.env.PropertiesPropertySource;
 import org.springframework.util.StringUtils;
 
 /**
+ * 实现对 Cloud Foundry 的支持。因为我们不使用 Cloud Foundry ，所以可以跳过对 CloudFoundryVcapEnvironmentPostProcessor 源码的了解
+ *
  * An {@link EnvironmentPostProcessor} that knows where to find VCAP (a.k.a. Cloud
  * Foundry) meta data in the existing environment. It parses out the VCAP_APPLICATION and
  * VCAP_SERVICES meta data and dumps it in a form that is easily consumed by
