@@ -3,3 +3,9 @@ mycooltv:
     url: http://192.168.20.123:40001/predis/jobs
 mf:
   assert: true
+
+spring:
+  application:
+    name: demo
+  profiles:
+    active: test

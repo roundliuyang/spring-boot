@@ -487,16 +487,25 @@ public class ConfigFileApplicationListener implements EnvironmentPostProcessor, 
 			};
 		}
 
+		/**
+		 * 加载指定 Profile 的配置文件
+		 */
 		private void load(Profile profile, DocumentFilterFactory filterFactory, DocumentConsumer consumer) {
+			//  获得要检索配置的路径
 			getSearchLocations().forEach((location) -> {
+				// 判断是否为文件夹
 				boolean isFolder = location.endsWith("/");
+				//  获得要检索配置的文件名集合
 				Set<String> names = isFolder ? getSearchNames() : NO_SEARCH_NAMES;
+				//  遍历文件名集合，逐个加载配置文件
 				names.forEach((name) -> load(location, name, profile, filterFactory, consumer));
 			});
 		}
 
 		private void load(String location, String name, Profile profile, DocumentFilterFactory filterFactory,
 				DocumentConsumer consumer) {
+			// 这块逻辑先无视，因为我们不会配置 name 为空。
+			// 默认情况下，name 为 DEFAULT_NAMES=application
 			if (!StringUtils.hasText(name)) {
 				for (PropertySourceLoader loader : this.propertySourceLoaders) {
 					if (canLoadFileExtension(loader, location)) {
@@ -508,10 +517,14 @@ public class ConfigFileApplicationListener implements EnvironmentPostProcessor, 
 						+ "' is not known to any PropertySourceLoader. If the location is meant to reference "
 						+ "a directory, it must end in '/'");
 			}
-			Set<String> processed = new HashSet<>();
+			Set<String> processed = new HashSet<>();    // 已处理的文件后缀集合
+			//  遍历 propertySourceLoaders 数组，逐个使用 PropertySourceLoader 读取配置
 			for (PropertySourceLoader loader : this.propertySourceLoaders) {
+				//  遍历每个 PropertySourceLoader 可处理的文件后缀集合
 				for (String fileExtension : loader.getFileExtensions()) {
+					//  添加到 processed 中，一个文件后缀，有且仅能被一个 PropertySourceLoader 所处理
 					if (processed.add(fileExtension)) {
+						// 加载 Profile 指定的配置文件（带后缀）
 						loadForFileExtension(loader, location + name, "." + fileExtension, profile, filterFactory,
 								consumer);
 					}
@@ -674,12 +687,19 @@ public class ConfigFileApplicationListener implements EnvironmentPostProcessor, 
 			this.environment.addActiveProfile(profile);
 		}
 
+		/**
+		 * 获得要检索配置的路径们
+		 */
 		private Set<String> getSearchLocations() {
+			// 获得 `"spring.config.additional-location"` 对应的配置的值
 			Set<String> locations = getSearchLocations(CONFIG_ADDITIONAL_LOCATION_PROPERTY);
+
+			// 获得 `"spring.config.location"` 对应的配置的值
 			if (this.environment.containsProperty(CONFIG_LOCATION_PROPERTY)) {
 				locations.addAll(getSearchLocations(CONFIG_LOCATION_PROPERTY));
 			}
 			else {
+				// 添加 searchLocations 到 locations 中
 				locations.addAll(
 						asResolvedSet(ConfigFileApplicationListener.this.searchLocations, DEFAULT_SEARCH_LOCATIONS));
 			}
@@ -688,8 +708,11 @@ public class ConfigFileApplicationListener implements EnvironmentPostProcessor, 
 
 		private Set<String> getSearchLocations(String propertyName) {
 			Set<String> locations = new LinkedHashSet<>();
+			// 如果 environment 中存在 propertyName 对应的值
 			if (this.environment.containsProperty(propertyName)) {
+				// 读取属性值，进行分割后，然后遍历
 				for (String path : asResolvedSet(this.environment.getProperty(propertyName), null)) {
+					// 处理 path
 					if (!path.contains("$")) {
 						path = StringUtils.cleanPath(path);
 						Assert.state(!path.startsWith(ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX),
@@ -698,20 +721,27 @@ public class ConfigFileApplicationListener implements EnvironmentPostProcessor, 
 							path = ResourceUtils.FILE_URL_PREFIX + path;
 						}
 					}
+					// 添加到 path 中
 					locations.add(path);
 				}
 			}
 			return locations;
 		}
 
+		/**
+		 * 获得要检索配置的文件名集合
+		 */
 		private Set<String> getSearchNames() {
+			// 获得 `"spring.config.name"` 对应的配置的值
 			if (this.environment.containsProperty(CONFIG_NAME_PROPERTY)) {
 				String property = this.environment.getProperty(CONFIG_NAME_PROPERTY);
 				return asResolvedSet(property, null);
 			}
+			// 添加 names or DEFAULT_NAMES 到 locations 中
 			return asResolvedSet(ConfigFileApplicationListener.this.names, DEFAULT_NAMES);
 		}
 
+		// 优先使用 value 。如果 value 为空，则使用 fallback
 		private Set<String> asResolvedSet(String value, String fallback) {
 			List<String> list = Arrays.asList(StringUtils.trimArrayElements(StringUtils.commaDelimitedListToStringArray(
 					(value != null) ? this.environment.resolvePlaceholders(value) : fallback)));
@@ -839,6 +869,7 @@ public class ConfigFileApplicationListener implements EnvironmentPostProcessor, 
 	}
 
 	/**
+	 * 是 ConfigFileApplicationListener 的内部类，用于表示加载 Documents 的缓存 KEY
 	 * Cache key used to save loading the same document multiple times.
 	 */
 	private static class DocumentsCacheKey {
@@ -872,16 +903,26 @@ public class ConfigFileApplicationListener implements EnvironmentPostProcessor, 
 	}
 
 	/**
+	 * 是 ConfigFileApplicationListener 的内部类，用于封装 PropertySourceLoader 加载配置文件后
 	 * A single document loaded by a {@link PropertySourceLoader}.
 	 */
 	private static class Document {
 
 		private final PropertySource<?> propertySource;
 
+		/**
+		 * 对应 `spring.profiles` 属性值
+		 */
 		private String[] profiles;
 
+		/**
+		 * 对应 `spring.profiles.active` 属性值
+		 */
 		private final Set<Profile> activeProfiles;
 
+		/**
+		 * 对应 `spring.profiles.include` 属性值
+		 */
 		private final Set<Profile> includeProfiles;
 
 		Document(PropertySource<?> propertySource, String[] profiles, Set<Profile> activeProfiles,
@@ -916,6 +957,7 @@ public class ConfigFileApplicationListener implements EnvironmentPostProcessor, 
 	}
 
 	/**
+	 * 是 ConfigFileApplicationListener 的内部接口，用于创建 DocumentFilter 对象
 	 * Factory used to create a {@link DocumentFilter}.
 	 */
 	@FunctionalInterface
