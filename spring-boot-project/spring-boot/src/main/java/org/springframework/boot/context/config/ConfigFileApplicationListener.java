@@ -361,7 +361,7 @@ public class ConfigFileApplicationListener implements EnvironmentPostProcessor, 
 						this.activatedProfiles = false;
 						// 创建 key 为profile,值为 MutablePropertySources 的默认 Map,注意是有序的 Map
 						this.loaded = new LinkedHashMap<>();
-						// 加载 Profile 信息，默认为 default
+						// 初始化 Spring Profiles 相关，加载 Profile 信息，默认为 default
 						initializeProfiles();
 						// 遍历 profiles ,逐个加载对应的配置文件
 						while (!this.profiles.isEmpty()) {
@@ -393,7 +393,7 @@ public class ConfigFileApplicationListener implements EnvironmentPostProcessor, 
 		 * properties that are already set.
 		 */
 		private void initializeProfiles() {
-			// 首先添加 default profile ,确保首先被执行，并且优先级最低
+			// 添加 null 到 profiles 中。用于加载默认的配置文件。优先添加到 profiles 中，因为希望默认的配置文件先被处理
 			// The default profile for these purposes is represented as null. We add it
 			// first so that it is processed first and has lowest priority.
 			this.profiles.add(null);
@@ -782,12 +782,19 @@ public class ConfigFileApplicationListener implements EnvironmentPostProcessor, 
 	}
 
 	/**
+	 * Spring Profiles 的封装对象
 	 * A Spring Profile that can be loaded.
 	 */
 	private static class Profile {
 
+		/**
+		 * Profile 名字
+		 */
 		private final String name;
 
+		/**
+		 * 是否为默认的 Profile
+		 */
 		private final boolean defaultProfile;
 
 		Profile(String name) {

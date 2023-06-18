@@ -35,6 +35,7 @@
 				<module>spring-boot-smoke-tests-invoker</module>
 				<module>spring-boot-integration-tests</module>
 				<module>spring-boot-deployment-tests</module>
+				<module>spring-boot-yly-tests</module>
 			</modules>
 		</profile>
 	</profiles>
