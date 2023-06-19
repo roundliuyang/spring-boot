@@ -12,3 +12,4 @@ spring:
 logging:
   level:
     root: info    # debug:可以看到一些 debug 日志
+debug: true       # 纯粹为了debug initializeEarlyLoggingLevel方法的日志

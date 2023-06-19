@@ -315,11 +315,16 @@ public class LoggingApplicationListener implements GenericApplicationListener {
 		initializeSystem(environment, this.loggingSystem, this.logFile);
 		//  初始化最终的 Spring Boot Logging 级别
 		initializeFinalLoggingLevels(environment, this.loggingSystem);
+		// 注册 ShutdownHook
 		registerShutdownHookIfNecessary(environment, this.loggingSystem);
 	}
 
 	private void initializeEarlyLoggingLevel(ConfigurableEnvironment environment) {
 		if (this.parseArgs && this.springBootLogging == null) {
+			/**
+			 * 可以通过在启动 jar 的时候，跟上 --debug 或 --trace 。
+			 * 也可以在配置文件中，添加 debug=true 或 trace=true
+			 */
 			if (isSet(environment, "debug")) {
 				this.springBootLogging = LogLevel.DEBUG;
 			}
@@ -334,12 +339,19 @@ public class LoggingApplicationListener implements GenericApplicationListener {
 		return (value != null && !value.equals("false"));
 	}
 
+	/**
+	 * 初始化 LoggingSystem 日志系统
+	 */
 	private void initializeSystem(ConfigurableEnvironment environment, LoggingSystem system, LogFile logFile) {
+		//  创建 LoggingInitializationContext 对象
 		LoggingInitializationContext initializationContext = new LoggingInitializationContext(environment);
+		// 获得日志组件的配置文件
 		String logConfig = environment.getProperty(CONFIG_PROPERTY);
+		// 如果没配置，则直接初始化 LoggingSystem
 		if (ignoreLogConfig(logConfig)) {
 			system.initialize(initializationContext, null, logFile);
 		}
+		// 如果有配置，先尝试加载指定配置文件，然后在初始化 LoggingSystem
 		else {
 			try {
 				system.initialize(initializationContext, logConfig, logFile);
