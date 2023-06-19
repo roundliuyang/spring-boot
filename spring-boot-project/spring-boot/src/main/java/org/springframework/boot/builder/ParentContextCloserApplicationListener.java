@@ -29,6 +29,8 @@ import org.springframework.core.Ordered;
 import org.springframework.util.ObjectUtils;
 
 /**
+ * 容器关闭时发出通知，如果父容器关闭，那么自容器也一起关闭
+ *
  * Listener that closes the application context if its parent is closed. It listens for
  * refresh events and grabs the current context from there, and then listens for closed
  * events and propagates it down the hierarchy.
@@ -40,6 +42,9 @@ import org.springframework.util.ObjectUtils;
 public class ParentContextCloserApplicationListener
 		implements ApplicationListener<ParentContextAvailableEvent>, ApplicationContextAware, Ordered {
 
+	/**
+	 * 顺序
+	 */
 	private int order = Ordered.LOWEST_PRECEDENCE - 10;
 
 	private ApplicationContext context;
@@ -56,17 +61,24 @@ public class ParentContextCloserApplicationListener
 
 	@Override
 	public void onApplicationEvent(ParentContextAvailableEvent event) {
+		// 向父容器添加监听器，监听父容器的关闭事件
 		maybeInstallListenerInParent(event.getApplicationContext());
 	}
 
 	private void maybeInstallListenerInParent(ConfigurableApplicationContext child) {
-		if (child == this.context && child.getParent() instanceof ConfigurableApplicationContext) {
+		// 如果 child 是当前容器
+		if (child == this.context
+				// 并且父容器是 ConfigurableApplicationContext 类型
+				&& child.getParent() instanceof ConfigurableApplicationContext) {
+			// 向父容器添加监听器，监听父容器的关闭事件
 			ConfigurableApplicationContext parent = (ConfigurableApplicationContext) child.getParent();
+			// 创建后的 ContextCloserListener 对象，向父容器 parent 中注册
 			parent.addApplicationListener(createContextCloserListener(child));
 		}
 	}
 
 	/**
+	 * 内部类，实现 ApplicationListener 接口，监听父容器关闭时，关闭自己（容器）
 	 * Subclasses may override to create their own subclass of ContextCloserListener. This
 	 * still enforces the use of a weak reference.
 	 * @param child the child context
@@ -90,7 +102,10 @@ public class ParentContextCloserApplicationListener
 		@Override
 		public void onApplicationEvent(ContextClosedEvent event) {
 			ConfigurableApplicationContext context = this.childContext.get();
-			if ((context != null) && (event.getApplicationContext() == context.getParent()) && context.isActive()) {
+			if ((context != null)
+					&& (event.getApplicationContext() == context.getParent())     // 如果是父容器
+					&& context.isActive()) {                               // 并且当前容器是启动状态
+				// 关闭当前容器
 				context.close();
 			}
 		}

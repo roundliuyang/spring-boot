@@ -35,6 +35,8 @@ import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.http.converter.support.AllEncompassingFormHttpMessageConverter;
 
 /**
+ * 实现后台提前执行耗时的初始化任务
+ *
  * {@link ApplicationListener} to trigger early initialization in a background thread of
  * time consuming tasks.
  * <p>
@@ -59,21 +61,36 @@ public class BackgroundPreinitializer implements ApplicationListener<SpringAppli
 	 */
 	public static final String IGNORE_BACKGROUNDPREINITIALIZER_PROPERTY_NAME = "spring.backgroundpreinitializer.ignore";
 
+	/**
+	 * 预初始化任务是否已启动
+	 */
 	private static final AtomicBoolean preinitializationStarted = new AtomicBoolean(false);
 
+	/**
+	 * 预初始化任务的 CountDownLatch 对象，用于实现等待预初始化任务是否完成
+	 */
 	private static final CountDownLatch preinitializationComplete = new CountDownLatch(1);
 
 	@Override
 	public void onApplicationEvent(SpringApplicationEvent event) {
+		// 如果是开启后台预初始化任务，默认情况下开启
+		// 并且，是 ApplicationStartingEvent 事件，说明应用正在启动中
+		// 并且，是多核环境
+		// 并且，预初始化任务未启动
 		if (!Boolean.getBoolean(IGNORE_BACKGROUNDPREINITIALIZER_PROPERTY_NAME)
 				&& event instanceof ApplicationEnvironmentPreparedEvent && multipleProcessors()
 				&& preinitializationStarted.compareAndSet(false, true)) {
+			// 启动
 			performPreinitialization();
 		}
+		// 如果是 ApplicationReadyEvent 或 ApplicationFailedEvent 事件，说明应用启动成功或失败，则等待预初始化任务完成
 		if ((event instanceof ApplicationReadyEvent || event instanceof ApplicationFailedEvent)
 				&& preinitializationStarted.get()) {
+			System.out.println("开始接收 [ApplicationReadyEvent 或 ApplicationFailedEvent] 事件。说明应用启动成功或失败，等待预初始化任务完成——————————————————————>start");
+			// 通过 CountDownLatch 实现，预初始化任务执行完成
 			try {
 				preinitializationComplete.await();
+				System.out.println("[ApplicationReadyEvent 或 ApplicationFailedEvent] 处理完成。说明应用启动成功或失败，等待预初始化任务完成—————————————————————————————>end");
 			}
 			catch (InterruptedException ex) {
 				Thread.currentThread().interrupt();
@@ -81,6 +98,9 @@ public class BackgroundPreinitializer implements ApplicationListener<SpringAppli
 		}
 	}
 
+	/**
+	 * @return 判断是否多核环境
+	 */
 	private boolean multipleProcessors() {
 		return Runtime.getRuntime().availableProcessors() > 1;
 	}
@@ -91,11 +111,13 @@ public class BackgroundPreinitializer implements ApplicationListener<SpringAppli
 
 				@Override
 				public void run() {
+					// 安全运行每个初始化任务
 					runSafely(new ConversionServiceInitializer());
 					runSafely(new ValidationInitializer());
 					runSafely(new MessageConverterInitializer());
 					runSafely(new JacksonInitializer());
 					runSafely(new CharsetInitializer());
+					// 标记 preinitializationComplete 完成
 					preinitializationComplete.countDown();
 				}
 

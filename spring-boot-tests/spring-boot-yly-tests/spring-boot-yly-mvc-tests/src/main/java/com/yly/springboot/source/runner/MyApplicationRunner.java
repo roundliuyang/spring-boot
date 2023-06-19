@@ -11,6 +11,6 @@ public class MyApplicationRunner implements ApplicationRunner {
 	@Override
 	public void run(ApplicationArguments args) throws Exception {
 		List<String> nonOptionArgs = args.getNonOptionArgs();
-		System.out.println("Runner1[非选项参数]>>> " + nonOptionArgs);
+		System.out.println("ApplicationRunner[非选项参数]------------------------------------------>>> " + nonOptionArgs);
 	}
 }

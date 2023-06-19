@@ -30,6 +30,8 @@ import org.springframework.context.event.SmartApplicationListener;
 import org.springframework.core.ResolvableType;
 
 /**
+ * 程序启动时，将 classpath 打印到 debug 日志，启动失败时 classpath 打印到 debug 日志
+ *
  * A {@link SmartApplicationListener} that reacts to
  * {@link ApplicationEnvironmentPreparedEvent environment prepared events} and to
  * {@link ApplicationFailedEvent failed events} by logging the classpath of the thread
@@ -40,20 +42,30 @@ import org.springframework.core.ResolvableType;
  */
 public final class ClasspathLoggingApplicationListener implements GenericApplicationListener {
 
+	/**
+	 * 顺序
+	 */
 	private static final int ORDER = LoggingApplicationListener.DEFAULT_ORDER + 1;
 
 	private static final Log logger = LogFactory.getLog(ClasspathLoggingApplicationListener.class);
 
 	@Override
 	public void onApplicationEvent(ApplicationEvent event) {
+		// 如果 debug 开启
 		if (logger.isDebugEnabled()) {
+			// 如果是 ApplicationEnvironmentPreparedEvent 事件，说明启动成功，打印成功到 debug 日志中
+
 			if (event instanceof ApplicationEnvironmentPreparedEvent) {
+				System.out.println("开始接收 [ApplicationEnvironmentPreparedEvent] 事件。说明启动成功，打印成功到 debug 日志中—————————————————>start");
 				logger.debug("Application started with classpath: " + getClasspath());
 			}
 			else if (event instanceof ApplicationFailedEvent) {
+				System.out.println("[ApplicationEnvironmentPreparedEvent] 处理完成。说明启动失败，打印失败到 debug 日志中——————————————————————>start");
 				logger.debug("Application failed to start with classpath: " + getClasspath());
 			}
+			System.out.println("[ApplicationEnvironmentPreparedEvent] 处理完成。打印启动状态到 debug 日志中—————————————————————>end");
 		}
+
 	}
 
 	@Override
@@ -63,6 +75,7 @@ public final class ClasspathLoggingApplicationListener implements GenericApplica
 
 	@Override
 	public boolean supportsEventType(ResolvableType resolvableType) {
+		// 使用 ResolvableType 类，可以解析当前传入的参数的泛型
 		Class<?> type = resolvableType.getRawClass();
 		if (type == null) {
 			return false;

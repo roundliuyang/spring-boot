@@ -34,6 +34,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.logging.Log;
 
+import org.hibernate.boot.model.source.spi.SingularAttributeSourceToOne;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
@@ -72,6 +73,7 @@ import org.springframework.util.StringUtils;
 
 /**
  * 实现 Spring Boot 配置文件的加载，注意哟，
+ *
  * ConfigFileApplicationListener 即是一个 SmartApplicationListener 实现类，又是一个 EnvironmentPostProcessor 实现类
  *
  * {@link EnvironmentPostProcessor} that configures the context environment by loading
@@ -182,10 +184,12 @@ public class ConfigFileApplicationListener implements EnvironmentPostProcessor, 
 	public void onApplicationEvent(ApplicationEvent event) {
 		// 如果是 ApplicationEnvironmentPreparedEvent 事件，说明 Spring 环境准备好了，则执行相应的处理
 		if (event instanceof ApplicationEnvironmentPreparedEvent) {
+			System.out.println("请看这里，spring 环境准备好了，赶快处理吧！你想一下，什么时候发布这个事件呢？肯定时环境配置加载好了，发布此事件------------");
 			onApplicationEnvironmentPreparedEvent((ApplicationEnvironmentPreparedEvent) event);
 		}
 		// 如果是 ApplicationPreparedEvent 事件，说明 Spring 容器初始化好了，则进行相应的处理。
 		if (event instanceof ApplicationPreparedEvent) {
+			System.out.println("继续看这里，说明 Spring 容器初始化好了，则进行相应的处理。请问什么时候发布这个事件呢？自然是Spring 容器加载完成的时候 ---------");
 			onApplicationPreparedEvent(event);
 		}
 	}

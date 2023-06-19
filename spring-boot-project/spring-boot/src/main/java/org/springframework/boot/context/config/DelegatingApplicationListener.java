@@ -34,6 +34,8 @@ import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 
 /**
+ * 只是读取的是环境变量 "context.listener.classes" 对应的 ApplicationContextInitializer 实现类们
+ *
  * {@link ApplicationListener} that delegates to other listeners that are specified under
  * a {@literal context.listener.classes} environment property.
  *
@@ -54,9 +56,11 @@ public class DelegatingApplicationListener implements ApplicationListener<Applic
 	@Override
 	public void onApplicationEvent(ApplicationEvent event) {
 		if (event instanceof ApplicationEnvironmentPreparedEvent) {
+			System.out.println("开始接收 [ApplicationEnvironmentPreparedEvent] 事件。读取的是环境变量 context.listener.classes 对应的 ApplicationContextInitializer 实现类们 ——————————————————————>start");
 			List<ApplicationListener<ApplicationEvent>> delegates = getListeners(
 					((ApplicationEnvironmentPreparedEvent) event).getEnvironment());
 			if (delegates.isEmpty()) {
+				System.out.println("[ApplicationEnvironmentPreparedEvent] 处理完成。读取的是环境变量 context.listener.classes 对应的 ApplicationContextInitializer 实现类们—————————————————————————————>end");
 				return;
 			}
 			this.multicaster = new SimpleApplicationEventMulticaster();

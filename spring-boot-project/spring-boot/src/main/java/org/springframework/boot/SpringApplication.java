@@ -269,6 +269,7 @@ public class SpringApplication {
 
 	/**
 	 * 构造方法
+	 *
 	 * Create a new {@link SpringApplication} instance. The application context will load
 	 * beans from the specified primary sources (see {@link SpringApplication class-level}
 	 * documentation for details. The instance can be customized before calling
@@ -503,7 +504,7 @@ public class SpringApplication {
 		// Use names and ensure unique to protect against duplicates
 		// <1> 加载指定类型对应的，在 `META-INF/spring.factories` 里的类名的数组
 		// 在 META-INF/spring.factories 文件中，会以 KEY-VALUE 的格式，配置每个类对应的实现类们。
-		// 关于 SpringFactoriesLoader 的该方法，我们就不去细看了。😈 很多时候，我们看源码的时候，不需要陷入到每个方法的细节中。非关键的方法，猜测到具体的用途后，跳过也是没问题的。
+		// 关于 SpringFactoriesLoader 的该方法，我们就不去细看了。
 
 		Set<String> names = new LinkedHashSet<>(SpringFactoriesLoader.loadFactoryNames(type, classLoader));
 		// 创建（实例化）对象们（当获取配置类的全限定名之后，便可调用createSpringFactoriesInstances（） 方法进行相应的实例化操作）

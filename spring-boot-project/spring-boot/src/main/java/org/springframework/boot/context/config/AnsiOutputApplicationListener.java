@@ -25,6 +25,9 @@ import org.springframework.core.Ordered;
 import org.springframework.core.env.ConfigurableEnvironment;
 
 /**
+ * 在 Spring Boot 环境变量(environment)准备完成以后运行，
+ * 如果你的终端支持 ANSI ，设置彩色输出会让日志更具可读性
+ *
  * An {@link ApplicationListener} that configures {@link AnsiOutput} depending on the
  * value of the property {@code spring.output.ansi.enabled}. See {@link Enabled} for valid
  * values.
@@ -38,10 +41,14 @@ public class AnsiOutputApplicationListener
 
 	@Override
 	public void onApplicationEvent(ApplicationEnvironmentPreparedEvent event) {
+		System.out.println("开始接收 [ApplicationEnvironmentPreparedEvent] 事件 。设置彩色输出日志——————————————————————>start");
 		ConfigurableEnvironment environment = event.getEnvironment();
+		//  根据环境变量 spring.output.ansi.enabled 的值，设置 AnsiOutput.enabled 属性
 		Binder.get(environment).bind("spring.output.ansi.enabled", AnsiOutput.Enabled.class)
 				.ifBound(AnsiOutput::setEnabled);
+		// 根据环境变量 "spring.output.ansi.console-available 的值，设置 AnsiOutput.consoleAvailable 属性
 		AnsiOutput.setConsoleAvailable(environment.getProperty("spring.output.ansi.console-available", Boolean.class));
+		System.out.println("[ApplicationEnvironmentPreparedEvent] 处理完成。设置彩色输出日志—————————————————————————————>end");
 	}
 
 	@Override

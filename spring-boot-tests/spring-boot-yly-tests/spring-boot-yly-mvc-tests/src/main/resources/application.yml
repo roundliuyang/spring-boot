@@ -9,3 +9,6 @@ spring:
     name: demo
   profiles:
     active: test
+logging:
+  level:
+    root: info    # debug:可以看到一些 debug 日志
