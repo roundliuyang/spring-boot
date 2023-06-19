@@ -268,6 +268,7 @@ public class SpringApplication {
 	}
 
 	/**
+	 * 构造方法
 	 * Create a new {@link SpringApplication} instance. The application context will load
 	 * beans from the specified primary sources (see {@link SpringApplication class-level}
 	 * documentation for details. The instance can be customized before calling
@@ -418,7 +419,8 @@ public class SpringApplication {
 	}
 
 	/**
-	 * 在 #prepareContext(...) 方法中，即在 Spring IoC 容器初始化之前，会调用 #applyInitializers() 方法，逐个调用 ApplicationContextInitializer 的初始化方法。代码如下：
+	 * 在 #prepareContext(...) 方法中，即在 Spring IoC 容器初始化之前，
+	 * 会调用 #applyInitializers() 方法，逐个调用 ApplicationContextInitializer 的初始化方法。代码如下：
 	 * @param printedBanner
 	 */
 	private void prepareContext(ConfigurableApplicationContext context, ConfigurableEnvironment environment,
@@ -427,7 +429,6 @@ public class SpringApplication {
 		context.setEnvironment(environment);
 		// 设置 context 的一些属性（应用上下文后置处理）
 		postProcessApplicationContext(context);
-		// 初始化 ApplicationContextInitializer
 		// 调用 #applyInitializers() 方法，逐个调用 ApplicationContextInitializer 的初始化方法。（ApplicationContextInitializer 初始化Context）
 		// 所使用的 ApplicationContextInitializer 正是我们在 SpringApplication 初始化阶段设置在initializers 变量中的值，只不过在通过 getInitializers 方法获取时进行了去重和排序
 		applyInitializers(context);
@@ -747,7 +748,7 @@ public class SpringApplication {
 	protected void applyInitializers(ConfigurableApplicationContext context) {
 		// 遍历 ApplicationContextInitializer 数组
 		for (ApplicationContextInitializer initializer : getInitializers()) {
-			// // 校验 ApplicationContextInitializer 的泛型非空
+			// 校验 ApplicationContextInitializer 的泛型非空
 			// 解析当前initializer 实现的 ApplicationContextInitializer 的泛型参数
 			Class<?> requiredType = GenericTypeResolver.resolveTypeArgument(initializer.getClass(),
 					ApplicationContextInitializer.class);

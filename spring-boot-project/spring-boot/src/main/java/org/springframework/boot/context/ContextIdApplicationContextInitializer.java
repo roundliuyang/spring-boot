@@ -27,6 +27,7 @@ import org.springframework.util.StringUtils;
 
 /**
  * 实现 ApplicationContextInitializer、Ordered 接口，负责生成 Spring 容器的编号。
+ *
  * {@link ApplicationContextInitializer} that sets the Spring
  * {@link ApplicationContext#getId() ApplicationContext ID}. The
  * {@code spring.application.name} property is used to create the ID. If the property is
@@ -56,10 +57,13 @@ public class ContextIdApplicationContextInitializer
 		ContextId contextId = getContextId(applicationContext);
 		// 设置到 applicationContext 中
 		applicationContext.setId(contextId.getId());
-		// 注册到 contextId 到 Spring 容器中
+		// 注册到 contextId 到 Spring 容器中。这样，后续就可以拿到了。
 		applicationContext.getBeanFactory().registerSingleton(ContextId.class.getName(), contextId);
 	}
 
+	/**
+	 * 获得（创建） ContextId 对象
+	 */
 	private ContextId getContextId(ConfigurableApplicationContext applicationContext) {
 		// 获得父ApplicationContext 对象
 		ApplicationContext parent = applicationContext.getParent();
@@ -72,7 +76,7 @@ public class ContextIdApplicationContextInitializer
 	}
 
 	private String getApplicationId(ConfigurableEnvironment environment) {
-		// 一般情况下，使用 "spring.application.name" 环境变量，作为 ContextId 对象的 id 属性。
+		//  一般情况下，使用 "spring.application.name" 环境变量，作为 ContextId 对象的 id 属性。
 		String name = environment.getProperty("spring.application.name");
 		return StringUtils.hasText(name) ? name : "application";
 	}
@@ -83,7 +87,10 @@ public class ContextIdApplicationContextInitializer
 	 */
 	static class ContextId {
 
-		// 递增序列
+		/**
+		 * 递增序列
+		 */
+
 		private final AtomicLong children = new AtomicLong(0);
 		/**
 		 * 编号
@@ -94,6 +101,9 @@ public class ContextIdApplicationContextInitializer
 			this.id = id;
 		}
 
+		/**
+		 * @return 创建子 Context 的编号
+		 */
 		ContextId createChildId() {
 			return new ContextId(this.id + "-" + this.children.incrementAndGet());
 		}

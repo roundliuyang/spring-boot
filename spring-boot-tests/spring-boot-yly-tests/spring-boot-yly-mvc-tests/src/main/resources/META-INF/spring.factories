@@ -1,2 +1,6 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
 com.yly.springboot.source.configurationproperties.PredisAutoConfiguration
+
+# Initializers
+org.springframework.context.ApplicationContextInitializer=\
+com.yly.springboot.source.initializer.MyApplicationContextInitializer

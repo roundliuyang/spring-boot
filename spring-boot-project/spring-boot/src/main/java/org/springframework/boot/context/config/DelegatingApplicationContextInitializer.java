@@ -32,8 +32,9 @@ import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 
 /**
- * org.springframework.boot.context.config.DelegatingApplicationContextInitializer ，实现 ApplicationContextInitializer、Ordered 接口，
+ * DelegatingApplicationContextInitializer ，实现 ApplicationContextInitializer、Ordered 接口，
  * 根据环境变量配置的 context.initializer.classes 配置的 ApplicationContextInitializer 类们，交给它们进行初始化。
+ *
  * {@link ApplicationContextInitializer} that delegates to other initializers that are
  * specified under a {@literal context.initializer.classes} environment property.
  *
@@ -47,6 +48,7 @@ public class DelegatingApplicationContextInitializer
 	// NOTE: Similar to org.springframework.web.context.ContextLoader
 	// 环境变量配置的属性
 	private static final String PROPERTY_NAME = "context.initializer.classes";
+
 	// 默认优先级  优先级为 0 ，在 Spring Boot 默认的 ApplicationContextInitializer 实现类中，是排在最前面的。
 	private int order = 0;
 
@@ -54,16 +56,21 @@ public class DelegatingApplicationContextInitializer
 	public void initialize(ConfigurableApplicationContext context) {
 		// 获得环境变量配置的 ApplicationContextInitializer 集合们
 		ConfigurableEnvironment environment = context.getEnvironment();
-		// 拼装成数组，按照 ，分隔
 		List<Class<?>> initializerClasses = getInitializerClasses(environment);
+		// 如果非空，则进行初始化
 		if (!initializerClasses.isEmpty()) {
 			// 执行 ApplicationContextInitializer 们的初始化逻辑
 			applyInitializerClasses(context, initializerClasses);
 		}
 	}
-	// 获得全类名，对应的类
+
+	/**
+	 * 获得环境变量配置的 ApplicationContextInitializer 集合们
+	 */
 	private List<Class<?>> getInitializerClasses(ConfigurableEnvironment env) {
+		// 获得环境变量配置的属性
 		String classNames = env.getProperty(PROPERTY_NAME);
+		// 拼装成数组，按照 ，分隔
 		List<Class<?>> classes = new ArrayList<>();
 		if (StringUtils.hasLength(classNames)) {
 			for (String className : StringUtils.tokenizeToStringArray(classNames, ",")) {
@@ -75,6 +82,7 @@ public class DelegatingApplicationContextInitializer
 
 	private Class<?> getInitializerClass(String className) throws LinkageError {
 		try {
+			// 获得全类名，对应的类
 			Class<?> initializerClass = ClassUtils.forName(className, ClassUtils.getDefaultClassLoader());
 			Assert.isAssignable(ApplicationContextInitializer.class, initializerClass);
 			return initializerClass;
@@ -84,6 +92,9 @@ public class DelegatingApplicationContextInitializer
 		}
 	}
 
+	/**
+	 * 执行初始化
+	 */
 	private void applyInitializerClasses(ConfigurableApplicationContext context, List<Class<?>> initializerClasses) {
 		Class<?> contextClass = context.getClass();
 		List<ApplicationContextInitializer<?>> initializers = new ArrayList<>();
@@ -91,6 +102,7 @@ public class DelegatingApplicationContextInitializer
 		for (Class<?> initializerClass : initializerClasses) {
 			initializers.add(instantiateInitializer(contextClass, initializerClass));
 		}
+		// 执行 ApplicationContextInitializer 们的初始化逻辑
 		applyInitializers(context, initializers);
 	}
 

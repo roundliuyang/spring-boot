@@ -33,7 +33,7 @@ import org.springframework.core.env.PropertySource;
 import org.springframework.util.StringUtils;
 
 /**
- * org.springframework.boot.web.context.ServerPortInfoApplicationContextInitializer ，
+ * ServerPortInfoApplicationContextInitializer ，
  * 实现 ApplicationContextInitializer、ApplicationListener 接口，监听 EmbeddedServletContainerInitializedEvent 类型的事件，
  * 然后将内嵌的 Web 服务器使用的端口给设置到 ApplicationContext 中。
  *
@@ -56,14 +56,16 @@ import org.springframework.util.StringUtils;
 public class ServerPortInfoApplicationContextInitializer implements
 		ApplicationContextInitializer<ConfigurableApplicationContext>, ApplicationListener<WebServerInitializedEvent> {
 
+	/**
+	 * 将自身作为一个 ApplicationListener 监听器，添加到 Spring 容器中。
+	 */
 	@Override
-	// 将自身作为一个 ApplicationListener 监听器，添加到 Spring 容器中。
 	public void initialize(ConfigurableApplicationContext applicationContext) {
 		applicationContext.addApplicationListener(this);
 	}
 
 	/**
-	 * 实现 #onApplicationEvent(WebServerInitializedEvent event) 方法，当监听到 WebServerInitializedEvent 事件，进行触发。代码如下：
+	 * 实现 #onApplicationEvent(WebServerInitializedEvent event) 方法，当监听到 WebServerInitializedEvent 事件，进行触发。
 	 */
 	@Override
 	public void onApplicationEvent(WebServerInitializedEvent event) {
