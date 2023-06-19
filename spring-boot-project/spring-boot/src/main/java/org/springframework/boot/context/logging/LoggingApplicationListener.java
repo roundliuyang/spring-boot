@@ -58,6 +58,7 @@ import org.springframework.util.StringUtils;
 
 /**
  * 实现根据配置初始化日志系统 Logger
+ *
  * An {@link ApplicationListener} that configures the {@link LoggingSystem}. If the
  * environment contains a {@code logging.config} property it will be used to bootstrap the
  * logging system, otherwise a default configuration is used. Regardless, logging levels
@@ -194,11 +195,18 @@ public class LoggingApplicationListener implements GenericApplicationListener {
 
 	private LogLevel springBootLogging = null;
 
+
+	/**
+	 * 判断是否是支持的事件类型
+	 */
 	@Override
 	public boolean supportsEventType(ResolvableType resolvableType) {
 		return isAssignableFrom(resolvableType.getRawClass(), EVENT_TYPES);
 	}
 
+	/**
+	 * 判断是否是支持的事件来源
+	 */
 	@Override
 	public boolean supportsSourceType(Class<?> sourceType) {
 		return isAssignableFrom(sourceType, SOURCE_TYPES);
@@ -219,15 +227,21 @@ public class LoggingApplicationListener implements GenericApplicationListener {
 	public void onApplicationEvent(ApplicationEvent event) {
 		// 在Spring Boot 应用启动的时候
 		if (event instanceof ApplicationStartingEvent) {
+			System.out.println("开始接收 [ApplicationStartingEvent] 事件 。在Spring Boot 应用开始启动的时候——————————————————————>start");
 			onApplicationStartingEvent((ApplicationStartingEvent) event);
+			System.out.println("[ApplicationStartingEvent] 处理完成。在Spring Boot 应用开始启动的时候—————————————————————————————>end");
 		}
 		//  在 Spring Boot 的 Environment 环境准备完成的时候
 		else if (event instanceof ApplicationEnvironmentPreparedEvent) {
+			System.out.println("开始接收 [ApplicationEnvironmentPreparedEvent] 事件。在Spring Boot 的Environment环境准备完成的时候。所以肯定是 SpringApplication.prepareEnvironment()方法中发送的事件——————————————————————>start");
 			onApplicationEnvironmentPreparedEvent((ApplicationEnvironmentPreparedEvent) event);
+			System.out.println("[ApplicationEnvironmentPreparedEvent] 处理完成。在Spring Boot 的Environment环境准备完成的时候——————————————————————————————————————————————————————————————————————————————————————————>end");
 		}
 		// 在 Spring Boot 容器的准备工作已经完成（并未启动）的时候
 		else if (event instanceof ApplicationPreparedEvent) {
+			System.out.println("开始接收 [ApplicationPreparedEvent] 事件 。在 Spring Boot 容器的准备工作已经完成（并未启动）的时候，也就是 SpringApplication.prepareContext()方法中发送的事件******************************************>start");
 			onApplicationPreparedEvent((ApplicationPreparedEvent) event);
+			System.out.println("[ApplicationPreparedEvent] 处理完成。在 Spring Boot 容器的准备工作已经完成（并未启动）的时候，也就是 SpringApplication.prepareContext()方法中发送的事件*************************************************>end");
 		}
 		// 在 Spring Boot 容器关闭的时候
 		else if (event instanceof ContextClosedEvent
@@ -241,7 +255,7 @@ public class LoggingApplicationListener implements GenericApplicationListener {
 	}
 
 	private void onApplicationStartingEvent(ApplicationStartingEvent event) {
-		//  创建 LoggingSystem 对象,通过 LoggingSystem 的抽象，对应不同日志框架对应的 LoggingSystem 实现，达到方便透明的接入不同的日志框架~
+		// 创建 LoggingSystem 对象,通过 LoggingSystem 的抽象，对应不同日志框架对应的 LoggingSystem 实现，达到方便透明的接入不同的日志框架~
 		this.loggingSystem = LoggingSystem.get(event.getSpringApplication().getClassLoader());
 		// LoggingSystem 的初始化的前置处理
 		this.loggingSystem.beforeInitialize();

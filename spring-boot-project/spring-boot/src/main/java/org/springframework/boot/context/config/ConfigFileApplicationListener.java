@@ -184,13 +184,15 @@ public class ConfigFileApplicationListener implements EnvironmentPostProcessor, 
 	public void onApplicationEvent(ApplicationEvent event) {
 		// 如果是 ApplicationEnvironmentPreparedEvent 事件，说明 Spring 环境准备好了，则执行相应的处理
 		if (event instanceof ApplicationEnvironmentPreparedEvent) {
-			System.out.println("请看这里，spring 环境准备好了，赶快处理吧！你想一下，什么时候发布这个事件呢？肯定时环境配置加载好了，发布此事件------------");
+			System.out.println("开始接收 [ApplicationEnvironmentPreparedEvent]事件。spring 环境准备好了，赶快处理吧！你想一下，什么时候发布这个事件呢？肯定时环境配置加载好了，发布此事件------------>start");
 			onApplicationEnvironmentPreparedEvent((ApplicationEnvironmentPreparedEvent) event);
+			System.out.println("[ApplicationEnvironmentPreparedEvent] 处理完成。Spring 环境准备好了，则执行相应的处理——————————————————————————————————————————————————————————————————————>end");
 		}
 		// 如果是 ApplicationPreparedEvent 事件，说明 Spring 容器初始化好了，则进行相应的处理。
 		if (event instanceof ApplicationPreparedEvent) {
-			System.out.println("继续看这里，说明 Spring 容器初始化好了，则进行相应的处理。请问什么时候发布这个事件呢？自然是Spring 容器加载完成的时候 ---------");
+			System.out.println("开始接收 [ApplicationPreparedEvent]事件。继续看这里，说明 Spring 容器初始化好了，则进行相应的处理。请问什么时候发布这个事件呢？自然是Spring 容器加载完成的时候 ————————————>start");
 			onApplicationPreparedEvent(event);
+			System.out.println("[ApplicationPreparedEvent] 处理完成。Spring 容器初始化好了，则进行相应的处理———————————————————————————————————————————————————————————————————————————————————>end");
 		}
 	}
 
