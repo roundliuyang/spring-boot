@@ -24,6 +24,7 @@ import org.springframework.core.env.PropertySourcesPropertyResolver;
 import org.springframework.util.Assert;
 
 /**
+ * LoggingSystem 的配置类
  * Utility to set system properties that can later be used by log configuration files.
  *
  * @author Andy Wilkinson
@@ -113,12 +114,17 @@ public class LoggingSystemProperties {
 		this.environment = environment;
 	}
 
+	/**
+	 * 解析 environment 的配置变量到系统属性中
+	 */
 	public void apply() {
 		apply(null);
 	}
 
 	public void apply(LogFile logFile) {
+		// 获得 propertyResolver 对象
 		PropertyResolver resolver = getPropertyResolver();
+		// 解析配置文件到系统属性中
 		setSystemProperty(resolver, EXCEPTION_CONVERSION_WORD, "exception-conversion-word");
 		setSystemProperty(PID_KEY, new ApplicationPid().toString());
 		setSystemProperty(resolver, CONSOLE_LOG_PATTERN, "pattern.console");
@@ -130,6 +136,7 @@ public class LoggingSystemProperties {
 		setSystemProperty(resolver, LOG_LEVEL_PATTERN, "pattern.level");
 		setSystemProperty(resolver, LOG_DATEFORMAT_PATTERN, "pattern.dateformat");
 		setSystemProperty(resolver, ROLLING_FILE_NAME_PATTERN, "pattern.rolling-file-name");
+		//  如果 logFile 非空，则应用配置
 		if (logFile != null) {
 			logFile.applyToSystemProperties();
 		}
@@ -146,7 +153,7 @@ public class LoggingSystemProperties {
 	}
 
 	private void setSystemProperty(PropertyResolver resolver, String systemPropertyName, String propertyName) {
-		setSystemProperty(systemPropertyName, resolver.getProperty("logging." + propertyName));
+		setSystemProperty(systemPropertyName, resolver.getProperty("logging." + propertyName));      // 读取的是 environment 中的 logging. 开头的配置属性。
 	}
 
 	private void setSystemProperty(String name, String value) {

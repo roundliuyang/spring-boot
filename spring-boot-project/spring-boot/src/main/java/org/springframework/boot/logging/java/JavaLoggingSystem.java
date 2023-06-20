@@ -40,6 +40,8 @@ import org.springframework.util.ResourceUtils;
 import org.springframework.util.StringUtils;
 
 /**
+ * 基于 JUL 的 LoggingSystem 实现类
+ *
  * {@link LoggingSystem} for {@link Logger java.util.logging}.
  *
  * @author Phillip Webb

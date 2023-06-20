@@ -28,6 +28,7 @@ import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 
 /**
+ * 日志系统抽象类，每个日志框架，都会对应一个实现类
  * Common abstraction over logging systems.
  *
  * @author Phillip Webb
@@ -68,6 +69,7 @@ public abstract class LoggingSystem {
 	}
 
 	/**
+	 * 抽象方法，初始化的前置方法
 	 * Reset the logging system to be limit output. This method may be called before
 	 * {@link #initialize(LoggingInitializationContext, String, LogFile)} to reduce
 	 * logging noise until the system has been fully initialized.
@@ -75,6 +77,7 @@ public abstract class LoggingSystem {
 	public abstract void beforeInitialize();
 
 	/**
+	 * 初始化
 	 * Fully initialize the logging system.
 	 * @param initializationContext the logging initialization context
 	 * @param configLocation a log configuration location or {@code null} if default
@@ -93,6 +96,7 @@ public abstract class LoggingSystem {
 	}
 
 	/**
+	 * 获得 ShutdownHook 的 Runnable 对象
 	 * Returns a {@link Runnable} that can handle shutdown of this logging system when the
 	 * JVM exits. The default implementation returns {@code null}, indicating that no
 	 * shutdown is required.
@@ -112,6 +116,7 @@ public abstract class LoggingSystem {
 	}
 
 	/**
+	 * 设置指定 loggerName 的日志级别，由子类实现
 	 * Sets the logging level for a given logger.
 	 * @param loggerName the name of the logger to set ({@code null} can be used for the
 	 * root logger).
@@ -143,18 +148,24 @@ public abstract class LoggingSystem {
 	}
 
 	/**
+	 * 创建（获得）LoggingSystem 对象
 	 * Detect and return the logging system in use. Supports Logback and Java Logging.
 	 * @param classLoader the classloader
 	 * @return the logging system
 	 */
 	public static LoggingSystem get(ClassLoader classLoader) {
+		// 从系统参数 org.springframework.boot.logging.LoggingSystem 获得 loggingSystem 类型
 		String loggingSystem = System.getProperty(SYSTEM_PROPERTY);
+		// 如果非空，说明配置了
 		if (StringUtils.hasLength(loggingSystem)) {
+			// 如果是 none ，则创建 NoOpLoggingSystem 对象
 			if (NONE.equals(loggingSystem)) {
 				return new NoOpLoggingSystem();
 			}
+			// 获得 loggingSystem 对应的 LoggingSystem 类，进行创建对象
 			return get(classLoader, loggingSystem);
 		}
+		// 如果为空，说明未配置，则顺序查找 SYSTEMS 中的类。如果存在指定类，则创建该类。
 		return SYSTEMS.entrySet().stream().filter((entry) -> ClassUtils.isPresent(entry.getKey(), classLoader))
 				.map((entry) -> get(classLoader, entry.getValue())).findFirst()
 				.orElseThrow(() -> new IllegalStateException("No suitable logging system located"));
@@ -173,6 +184,7 @@ public abstract class LoggingSystem {
 	}
 
 	/**
+	 * 空操作的 LoggingSystem 实现类，用于禁用日志系统的时候
 	 * {@link LoggingSystem} that does nothing.
 	 */
 	static class NoOpLoggingSystem extends LoggingSystem {

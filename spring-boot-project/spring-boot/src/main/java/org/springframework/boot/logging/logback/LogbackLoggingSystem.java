@@ -55,6 +55,8 @@ import org.springframework.util.ResourceUtils;
 import org.springframework.util.StringUtils;
 
 /**
+ * 继承 Slf4JLoggingSystem 抽象类，基于 Logback 的 LoggingSystem 实现类
+ *
  * {@link LoggingSystem} for <a href="https://logback.qos.ch">logback</a>.
  *
  * @author Phillip Webb
@@ -101,11 +103,15 @@ public class LogbackLoggingSystem extends Slf4JLoggingSystem {
 
 	@Override
 	public void beforeInitialize() {
+		// 获得 LoggerContext 对象
 		LoggerContext loggerContext = getLoggerContext();
+		//  如果已经初始化过，则直接返回
 		if (isAlreadyInitialized(loggerContext)) {
 			return;
 		}
+		// 调用父方法
 		super.beforeInitialize();
+		// 添加 FILTER 到其中
 		loggerContext.getTurboFilterList().add(FILTER);
 	}
 
@@ -276,6 +282,9 @@ public class LogbackLoggingSystem extends Slf4JLoggingSystem {
 		return factory.getLogger(name);
 	}
 
+	/**
+	 * 获得 LoggerContext 对象。
+	 */
 	private LoggerContext getLoggerContext() {
 		ILoggerFactory factory = StaticLoggerBinder.getSingleton().getLoggerFactory();
 		Assert.isInstanceOf(LoggerContext.class, factory,

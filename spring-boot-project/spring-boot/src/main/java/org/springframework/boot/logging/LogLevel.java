@@ -17,6 +17,7 @@
 package org.springframework.boot.logging;
 
 /**
+ * Spring Boot 日志枚举类
  * Logging levels supported by a {@link LoggingSystem}.
  *
  * @author Phillip Webb

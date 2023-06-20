@@ -269,6 +269,10 @@ public class LoggingApplicationListener implements GenericApplicationListener {
 		initialize(event.getEnvironment(), event.getSpringApplication().getClassLoader());
 	}
 
+	/**
+	 * 将创建相关的对象，注册到 Spring 容器中
+	 * @param event
+	 */
 	private void onApplicationPreparedEvent(ApplicationPreparedEvent event) {
 		ConfigurableListableBeanFactory beanFactory = event.getApplicationContext().getBeanFactory();
 		if (!beanFactory.containsBean(LOGGING_SYSTEM_BEAN_NAME)) {
@@ -345,7 +349,15 @@ public class LoggingApplicationListener implements GenericApplicationListener {
 	private void initializeSystem(ConfigurableEnvironment environment, LoggingSystem system, LogFile logFile) {
 		//  创建 LoggingInitializationContext 对象
 		LoggingInitializationContext initializationContext = new LoggingInitializationContext(environment);
-		// 获得日志组件的配置文件
+		/**
+		 * 从 environment 中获得 "logging.config" ，即获得日志组件的配置文件。一般情况下，我们无需配置。因为根据不同的日志系统，
+		 * Spring Boot 按如下“约定规则”组织配置文件名加载日志配置文件：
+		 * 	日志框架					配置文件
+		 * 	Logback					logback-spring.xml, logback-spring.groovy, logback.xml, logback.groovy
+		 * 	Log4j					log4j-spring.properties, log4j-spring.xml, log4j.properties, log4j.xml
+		 * 	Log4j2					log4j2-spring.xml, log4j2.xml
+		 * 	JDK (Java Util Logging)	logging.properties
+		 */
 		String logConfig = environment.getProperty(CONFIG_PROPERTY);
 		// 如果没配置，则直接初始化 LoggingSystem
 		if (ignoreLogConfig(logConfig)) {
@@ -374,11 +386,16 @@ public class LoggingApplicationListener implements GenericApplicationListener {
 		return !StringUtils.hasLength(logConfig) || logConfig.startsWith("-D");
 	}
 
+	/**
+	 * 初始化最终的 Spring Boot Logging 级别
+	 */
 	private void initializeFinalLoggingLevels(ConfigurableEnvironment environment, LoggingSystem system) {
 		bindLoggerGroups(environment);
+		//  如果 springBootLogging 非空，则设置到日志级别
 		if (this.springBootLogging != null) {
 			initializeLogLevel(system, this.springBootLogging);
 		}
+		// 设置 environment 中配置的日志级别
 		setLogLevels(system, environment);
 	}
 
@@ -438,8 +455,11 @@ public class LoggingApplicationListener implements GenericApplicationListener {
 	 */
 	protected void setLogLevels(LoggingSystem system, ConfigurableEnvironment environment) {
 		BiConsumer<String, LogLevel> customizer = getLogLevelConfigurer(system);
+		// 创建 Binder 对象
 		Binder binder = Binder.get(environment);
+		// 获得日志级别的集合
 		Map<String, LogLevel> levels = binder.bind(LOGGING_LEVEL, STRING_LOGLEVEL_MAP).orElseGet(Collections::emptyMap);
+		// 遍历 levels 集合，这个设置日志级别
 		levels.forEach((name, level) -> configureLogLevel(name, level, customizer));
 	}
 

@@ -25,6 +25,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 /**
+ * 日志文件
  * A reference to a log output file. Log output files are specified using
  * {@code logging.file.name} or {@code logging.file.path} {@link Environment} properties.
  * If the {@code logging.file.name} property is not specified {@code "spring.log"} will be
@@ -67,8 +68,14 @@ public class LogFile {
 	 */
 	public static final String FILE_PATH_PROPERTY = "logging.file.path";
 
+	/**
+	 * 文件名
+	 */
 	private final String file;
 
+	/**
+	 * 文件路径
+	 */
 	private final String path;
 
 	/**
@@ -91,6 +98,7 @@ public class LogFile {
 	}
 
 	/**
+	 * 应用 file、path 到系统属性
 	 * Apply log file details to {@code LOG_PATH} and {@code LOG_FILE} system properties.
 	 */
 	public void applyToSystemProperties() {
@@ -106,12 +114,19 @@ public class LogFile {
 		put(properties, LoggingSystemProperties.LOG_FILE, toString());
 	}
 
+	/**
+	 * 添加属性值到系统属性
+	 */
 	private void put(Properties properties, String key, String value) {
 		if (StringUtils.hasLength(value)) {
 			properties.put(key, value);
 		}
 	}
 
+	/**
+	 * 返回文件名
+	 * @return
+	 */
 	@Override
 	public String toString() {
 		if (StringUtils.hasLength(this.file)) {
@@ -121,6 +136,7 @@ public class LogFile {
 	}
 
 	/**
+	 * 获得（创建）LogFile 对象
 	 * Get a {@link LogFile} from the given Spring {@link Environment}.
 	 * @param propertyResolver the {@link PropertyResolver} used to obtain the logging
 	 * properties
@@ -128,14 +144,19 @@ public class LogFile {
 	 * suitable properties
 	 */
 	public static LogFile get(PropertyResolver propertyResolver) {
+		// 获得 file 和 path 属性
 		String file = getLogFileProperty(propertyResolver, FILE_NAME_PROPERTY, FILE_PROPERTY);
 		String path = getLogFileProperty(propertyResolver, FILE_PATH_PROPERTY, PATH_PROPERTY);
+		// 创建 LogFile 对象
 		if (StringUtils.hasLength(file) || StringUtils.hasLength(path)) {
 			return new LogFile(file, path);
 		}
 		return null;
 	}
 
+	/**
+	 * 获得 file 和 path 属性
+	 */
 	private static String getLogFileProperty(PropertyResolver propertyResolver, String propertyName,
 			String deprecatedPropertyName) {
 		String property = propertyResolver.getProperty(propertyName);
