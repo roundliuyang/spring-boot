@@ -77,7 +77,9 @@ class JedisConnectionConfiguration extends RedisConnectionConfiguration {
 
 	private JedisClientConfiguration getJedisClientConfiguration(
 			ObjectProvider<JedisClientConfigurationBuilderCustomizer> builderCustomizers) {
+		// 调用 applyProperties 方法，获取一个 JedisClientConfigurationBuilder 对象，用于构建 JedisClientConfiguration 对象
 		JedisClientConfigurationBuilder builder = applyProperties(JedisClientConfiguration.builder());
+		// 从 RedisProperties 中获取 Jedis 连接池的配置信息
 		RedisProperties.Pool pool = getProperties().getJedis().getPool();
 		if (pool != null) {
 			applyPooling(pool, builder);
@@ -90,6 +92,7 @@ class JedisConnectionConfiguration extends RedisConnectionConfiguration {
 	}
 
 	private JedisClientConfigurationBuilder applyProperties(JedisClientConfigurationBuilder builder) {
+		// 如果属性中的 isSsl 为 true，则调用 builder::useSsl 方法，将 builder 对象的 useSsl 属性设置为 true
 		if (getProperties().isSsl()) {
 			builder.useSsl();
 		}
@@ -105,13 +108,16 @@ class JedisConnectionConfiguration extends RedisConnectionConfiguration {
 
 	private void applyPooling(RedisProperties.Pool pool,
 			JedisClientConfiguration.JedisClientConfigurationBuilder builder) {
+		// usePooling() : 启用连接池功能, poolConfig(jedisPoolConfig(pool)) ：将连接池的配置信息传递给 builder 对象
 		builder.usePooling().poolConfig(jedisPoolConfig(pool));
 	}
 
 	private JedisPoolConfig jedisPoolConfig(RedisProperties.Pool pool) {
 		JedisPoolConfig config = new JedisPoolConfig();
 		config.setMaxTotal(pool.getMaxActive());
+		// 池中空闲连接的最大数量。使用负值表示无限数量的空闲连接。
 		config.setMaxIdle(pool.getMaxIdle());
+		// 池中保持最小空闲连接的目标数量。
 		config.setMinIdle(pool.getMinIdle());
 		if (pool.getTimeBetweenEvictionRuns() != null) {
 			config.setTimeBetweenEvictionRunsMillis(pool.getTimeBetweenEvictionRuns().toMillis());
