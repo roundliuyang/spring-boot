@@ -45,6 +45,7 @@ import org.springframework.util.StringUtils;
  * @author Andy Wilkinson
  */
 @Configuration(proxyBeanMethods = false)
+// 指定一个或多个目标类，若目标类在类路径下能够找到，则当前配置类生效；而只要有一个目标类未找到，则不生效。
 @ConditionalOnClass(RedisClient.class)
 class LettuceConnectionConfiguration extends RedisConnectionConfiguration {
 

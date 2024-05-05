@@ -47,6 +47,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnClass(RedisOperations.class)
 @EnableConfigurationProperties(RedisProperties.class)
+// Redis的自动配置类是RedisAutoConfiguration。它引入了两个连接Redis配置类：Lettuce使用LettuceConnectionConfiguration，Jedis使用JedisConnectionConfiguration
 @Import({ LettuceConnectionConfiguration.class, JedisConnectionConfiguration.class })
 public class RedisAutoConfiguration {
 

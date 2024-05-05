@@ -63,12 +63,15 @@ class JedisConnectionConfiguration extends RedisConnectionConfiguration {
 	private JedisConnectionFactory createJedisConnectionFactory(
 			ObjectProvider<JedisClientConfigurationBuilderCustomizer> builderCustomizers) {
 		JedisClientConfiguration clientConfiguration = getJedisClientConfiguration(builderCustomizers);
+		// 获取哨兵模式配置，并判断是否为空，如果不为空，则直接根据哨兵模式的配置创建并返回一个连接工厂实例
 		if (getSentinelConfig() != null) {
 			return new JedisConnectionFactory(getSentinelConfig(), clientConfiguration);
 		}
+		//获取集群模式配置，并判断是否为空，如果不为空，则直接根据集群模式的配置创建并返回一个连接工厂实例
 		if (getClusterConfiguration() != null) {
 			return new JedisConnectionFactory(getClusterConfiguration(), clientConfiguration);
 		}
+		// 最后，获取单机模式配置，根据单机模式的配置创建并返回一个连接工厂实例
 		return new JedisConnectionFactory(getStandaloneConfig(), clientConfiguration);
 	}
 
